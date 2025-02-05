@@ -1,26 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_isalnum.c                                       :+:      :+:    :+:   */
+/*   handle_signals.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/09/05 15:00:53 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/05 17:15:41 by ikhalil          ###   ########.fr       */
+/*   Created: 2025/02/05 17:24:15 by ikhalil           #+#    #+#             */
+/*   Updated: 2025/02/05 17:38:40 by ikhalil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "minishell.h"
 
-int	ft_isalnum(int c)
+void    handle_signals(int  sig)
 {
-	if (ft_isalpha(c) || ft_isdigit(c))
-		return (1);
-	return (0);
+    if (sig == SIGINT)
+    {
+        printf("\n");  // Move to a new line
+        rl_on_new_line();
+        rl_replace_line("", 0);
+        rl_redisplay();
+    }
+    else if (sig == SIGQUIT)
+    {
+        // Do Nothing :)
+    }
 }
-/*int	main()
-{
-	printf("%d",ft_isalnum('i'));
-	return (0);
-}*/
-

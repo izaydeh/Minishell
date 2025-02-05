@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:46:28 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/05 16:37:09 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/02/05 17:47:37 by ikhalil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,20 @@ int main(int argc, char **argv, char **envp)
 {
     (void)argc;
     (void)argv;
+    (void)envp;
     t_shell test;
     int i;
+
+    signal(SIGINT,handle_signals); // Handle Ctrl + C => New line
+    signal(SIGQUIT, SIG_IGN); // Hanlde Cntrl + \ => Do Nothing
     while (1)
     {   
         test.input = readline("welcome to بهجت صابر (shell)>");
+        if (!test.input)
+        {
+            printf("exit\n"); // Handle Ctrl + D => Exit Shell
+            break;
+        }
         if (test.input)
         {
             ft_printf("test: %s\n", test.input);
@@ -43,9 +52,9 @@ int main(int argc, char **argv, char **envp)
                 }
                 i++;
             }
-            i = 0;
-            if (is_builtin_funcion(&test) == 0)
-                pipp(argc, argv, envp, &test);
+            //i = 0;
+            //if (is_builtin_funcion(&test) == 0)
+                //pipp(argc, argv, envp, &test);
             add_history(test.input);
             free(test.input);
         }

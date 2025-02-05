@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   pipe.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:59:18 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/05 16:39:24 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/02/05 17:22:17 by ikhalil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void    child_process(t_shell *test, char **envp ,int *i)
+/*void    child_process(t_shell *test, char **envp ,int *i)
 {
     pid_t pid;
     int fd[2];
@@ -33,9 +33,9 @@ void    child_process(t_shell *test, char **envp ,int *i)
         dup2(fd[0], STDIN_FILENO);
         waitpid(pid, NULL, 0);
     }
-}
+}*/
 
-void    pipp(int argc, char **argv, char **envp, t_shell *test)
+/*void    pipp(int argc, char **argv, char **envp, t_shell *test)
 {
     int i;
     int infile;
@@ -47,11 +47,10 @@ void    pipp(int argc, char **argv, char **envp, t_shell *test)
     dup2(infile, STDIN_FILENO);
     while (i < argc - 2)
     {
-        // if (is_builtin_funcion(&test) == 0)
         if (test->input_splitted[i] == 0)
             child_process(&test, envp, i);
         i++;
     }
     dup2(outfile, STDOUT_FILENO);
     execve_code(&test, envp, argc - 2);
-}
+}*/

@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   execve.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 18:24:17 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/05 16:39:58 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/02/05 17:21:19 by ikhalil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static char *getpath(char **test)
+char *getpath(char **test)
 {
     char *path = getenv("PATH");
     if (!path)
@@ -42,7 +42,7 @@ static char *getpath(char **test)
     free(new_path);
     return NULL;
 }
--
+
 void    execve_code(t_shell *s, char **envp, int i)
 {
     // pid_t pid;
