@@ -6,7 +6,7 @@
 /*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/05 15:00:53 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/05 16:53:20 by ikhalil          ###   ########.fr       */
+/*   Updated: 2025/02/05 17:08:33 by ikhalil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,3 +24,4 @@ int	ft_isalnum(int c)
 	return (0);
 }*/
 //isiadidiadiaisdiasidiad
+/////
