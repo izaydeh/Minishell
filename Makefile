@@ -1,5 +1,6 @@
 NAME =minishell
 
+
 SRCS =src/main.c src/execve.c src/builtin/ft_cd.c src/builtin/ft_echo.c src/builtin/ft_env.c src/builtin/ft_pwd.c src/builtin/is_builtin_function.c src/pipe.c src/handle_signals.c
 
 OBJ =$(SRCS:.c=.o)
