@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   libft.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/05 15:22:13 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/05 15:15:23 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/02/06 20:52:52 by shoaib           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 # include <stddef.h>
 # include <stdlib.h>
 # include <unistd.h>
+#include <ctype.h>
+#include <string.h>
 
 typedef struct s_list
 {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execve.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
+/*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 18:24:17 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/05 17:21:19 by ikhalil          ###   ########.fr       */
+/*   Updated: 2025/02/06 21:49:31 by shoaib           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,47 +41,4 @@ char *getpath(char **test)
         return (new_path);
     free(new_path);
     return NULL;
-}
-
-void    execve_code(t_shell *s, char **envp, int i)
-{
-    // pid_t pid;
-    char *path;
-    path = getpath(s->split_the_split[i]);
-    if (!path)
-    {
-        write (1, "the command not found\n", 22);
-        return ;
-    }
-    s->split_the_split[i][0] = path;
-    int j = 0;
-    while (s->split_the_split[i][j])
-    {
-        ft_printf("split_the_split[%d][%d]: %s\n", i, j, s->split_the_split[i][j]);
-        j++;
-    }
-
-    // pid = fork();
-    // if (pid == -1)
-    // {
-    //     write(1, "fork failed\n", 12);
-    //     return;
-    // }
-    // else if (pid == 0)
-    // {
-    //     if (execve(path, s->split_the_split[0], envp) == -1)
-    //     {
-    //         write(1, "the command not found2\n", 23);
-    //         free(path);
-    //         exit(1);
-    //     }
-    // }
-    // else
-    //     waitpid(pid, NULL, 0);
-    if (execve(path, s->split_the_split[i], envp) == -1)
-    {
-        write(1, "the command not found2\n", 23);
-        free(path);
-        exit(1);
-    }
 }

@@ -3,118 +3,195 @@
 /*                                                        :::      ::::::::   */
 /*   ft_split.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/05 15:17:20 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/05 15:14:48 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/02/06 21:28:10 by shoaib           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-int ft_is_special_char(const char *s, size_t *length)
-{
-    if (!s || !*s)
-        return (0);
-    if ((s[0] == '<' && s[1] == '<') || (s[0] == '>' && s[1] == '>'))
-    {
-        *length = 2;
-        return (1);
-    }
-    if (s[0] == '|' || s[0] == '<' || s[0] == '>')
-    {
-        *length = 1;
-        return (1);
-    }
-    *length = 0;
-    return (0);
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+// Return 1 if op is one of the redirection operators.
+int is_redirection_operator(const char *op) {
+    return (strcmp(op, ">") == 0 || strcmp(op, ">>") == 0 ||
+            strcmp(op, "<") == 0 || strcmp(op, "<<") == 0);
 }
 
-static size_t ft_countword(const char *s)
-{
-    size_t count = 0;
-    int in_quote = 0;
-    size_t special_len;
+// Helper: Trim leading and trailing whitespace and set *start and *end pointers.
+void trim(char *str, char **start, char **end) {
+    while (isspace((unsigned char)*str))
+        str++;
+    *start = str;
+    if (*str == '\0') {
+        *end = str;
+        return;
+    }
+    char *last = str + strlen(str) - 1;
+    while (last >= str && isspace((unsigned char)*last))
+        last--;
+    *end = last + 1;
+}
 
-    while (*s)
-    {
-        while (*s == ' ' && !in_quote)
-            s++;
-        if (*s)
-        {
-            count++;
-            if (!in_quote && ft_is_special_char(s, &special_len))
-                s += special_len;
-            else
-            {
-                while (*s && (in_quote || (!ft_is_special_char(s, &special_len) && *s != ' ')))
-                {
-                    if (*s == '"')
-                        in_quote = !in_quote;
-                    s++;
-                }
+// Helper: Check if the string at s is an operator.
+// If yes, set *op_len to the operator's length and return 1; otherwise, return 0.
+int is_operator(const char *s, int *op_len) {
+    if (s[0] == '>' && s[1] == '>') {
+        *op_len = 2;
+        return 1;
+    } else if (s[0] == '<' && s[1] == '<') {
+        *op_len = 2;
+        return 1;
+    } else if (s[0] == '>') {
+        *op_len = 1;
+        return 1;
+    } else if (s[0] == '<') {
+        *op_len = 1;
+        return 1;
+    } else if (s[0] == '|') {
+        *op_len = 1;
+        return 1;
+    }
+    *op_len = 0;
+    return 0;
+}
+
+// Tokenize the input string according to the rules described.
+// Tokens are stored in the provided array 'tokens' (which should have capacity 'max_tokens').
+// Returns the number of tokens stored.
+int tokenize_input(const char *input, char **tokens, int max_tokens) {
+    int token_count = 0;
+    const char *p = input;
+    int prev_redir = 0;  // Set to 1 if the previous token was a redirection operator.
+
+    while (*p != '\0' && token_count < max_tokens) {
+        // Skip any leading whitespace.
+        while (*p && isspace((unsigned char)*p))
+            p++;
+        if (*p == '\0')
+            break;
+
+        int op_len = 0;
+        if (is_operator(p, &op_len)) {
+            // Process the operator token.
+            char *op_token = malloc(op_len + 1);
+            if (!op_token) {
+                fprintf(stderr, "Memory allocation failed\n");
+                exit(EXIT_FAILURE);
             }
+            strncpy(op_token, p, op_len);
+            op_token[op_len] = '\0';
+            tokens[token_count++] = op_token;
+
+            // Set flag if it is a redirection operator.
+            if (is_redirection_operator(op_token))
+                prev_redir = 1;
+            else
+                prev_redir = 0;
+            p += op_len;
+        } else {
+            // Process a non-operator part.
+            const char *start_ptr = p;
+            while (*p != '\0') {
+                int len = 0;
+                if (is_operator(p, &len))
+                    break;
+                p++;
+            }
+            int part_len = p - start_ptr;
+            char *part = malloc(part_len + 1);
+            if (!part) {
+                fprintf(stderr, "Memory allocation failed\n");
+                exit(EXIT_FAILURE);
+            }
+            strncpy(part, start_ptr, part_len);
+            part[part_len] = '\0';
+
+            // Trim the part.
+            char *trimmed_start, *trimmed_end;
+            trim(part, &trimmed_start, &trimmed_end);
+            int trimmed_len = trimmed_end - trimmed_start;
+            if (trimmed_len <= 0) {
+                free(part);
+                prev_redir = 0;
+                continue;
+            }
+
+            if (prev_redir) {
+                // If the previous token was a redirection operator,
+                // split the trimmed part at the first whitespace.
+                char *space = strchr(trimmed_start, ' ');
+                if (space) {
+                    // First word.
+                    int word_len = space - trimmed_start;
+                    char *first_word = malloc(word_len + 1);
+                    if (!first_word) {
+                        fprintf(stderr, "Memory allocation failed\n");
+                        exit(EXIT_FAILURE);
+                    }
+                    strncpy(first_word, trimmed_start, word_len);
+                    first_word[word_len] = '\0';
+                    tokens[token_count++] = first_word;
+                    if (token_count >= max_tokens) {
+                        free(part);
+                        break;
+                    }
+                    // Remainder (if any).
+                    char *rem = space + 1;
+                    while (*rem && isspace((unsigned char)*rem))
+                        rem++;
+                    if (*rem != '\0') {
+                        char *second_word = strdup(rem);
+                        if (!second_word) {
+                            fprintf(stderr, "Memory allocation failed\n");
+                            exit(EXIT_FAILURE);
+                        }
+                        tokens[token_count++] = second_word;
+                    }
+                } else {
+                    // No space found; take the entire trimmed part.
+                    char *token_str = strdup(trimmed_start);
+                    if (!token_str) {
+                        fprintf(stderr, "Memory allocation failed\n");
+                        exit(EXIT_FAILURE);
+                    }
+                    tokens[token_count++] = token_str;
+                }
+            } else {
+                // Otherwise, take the entire trimmed part as one token.
+                char *token_str = malloc(trimmed_len + 1);
+                if (!token_str) {
+                    fprintf(stderr, "Memory allocation failed\n");
+                    exit(EXIT_FAILURE);
+                }
+                strncpy(token_str, trimmed_start, trimmed_len);
+                token_str[trimmed_len] = '\0';
+                tokens[token_count++] = token_str;
+            }
+            free(part);
+            prev_redir = 0; // Reset flag after processing a non-operator part.
         }
     }
-    return (count);
+    return token_count;
 }
 
-static char *ft_get_next_token(const char **s, int *in_quote)
-{
-    const char *start;
-    size_t special_len;
-    char *token;
-    size_t len;
-
-    while (**s == ' ' && !*in_quote)
-        (*s)++;
-    start = *s;
-    if (!*in_quote && ft_is_special_char(*s, &special_len))
-    {
-        *s += special_len;
-        return (ft_substr(start, 0, special_len));
+// ft_split: Accepts an input string, tokenizes it, and returns a dynamically allocated,
+// NULL-terminated array of tokens. The caller must free each token and the array.
+char **ft_split(const char *input) {
+    const int max_tokens = 100;
+    char **tokens = malloc((max_tokens + 1) * sizeof(char *));
+    if (!tokens) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(EXIT_FAILURE);
     }
-    while (**s && (*in_quote || !ft_is_special_char(*s, &special_len)))
-    {
-        if (**s == '"')
-            *in_quote = !*in_quote;
-        (*s)++;
-    }
-    token = ft_substr(start, 0, *s - start);
-    if (!*in_quote && token)
-    {
-        len = ft_strlen(token);
-        while (len > 0 && token[len - 1] == ' ')
-            len--;
-        char *trimmed = ft_substr(token, 0, len);
-        free(token);
-        token = trimmed;
-    }
-    return (token);
-}
-
-char **ft_split(const char *s)
-{
-    char **tokens;
-    size_t j = 0;
-    int in_quote = 0;
-    char *token;
-
-    if (!s)
-        return (NULL);
-    tokens = malloc((ft_countword(s) + 1) * sizeof(char *));
-    if (!tokens)
-        return (NULL);
-    while (*s)
-    {
-        token = ft_get_next_token(&s, &in_quote);
-        if (token && *token)
-            tokens[j++] = token;
-        else
-            free(token);
-    }
-    tokens[j] = NULL;
-    return (tokens);
+    int token_count = tokenize_input(input, tokens, max_tokens);
+    tokens[token_count] = NULL;
+    return tokens;
 }
 
 static size_t ft_count_subwords(char *s)
