@@ -1,12 +1,40 @@
 #include "minishell.h"
 
 extern char **environ;
-void ft_env()
+
+void ft_env(t_shell *test)
 {
     int i = 0;
-    while (environ[i])
-    {
-        printf("%s\n", environ[i]);
+    while (test->env[i])
+    {    
+        write (1, test->env[i], ft_strlen(test->env[i]));
+        write(1, "\n", 1);
         i++;
     }
+}
+void ft_env_init(t_shell *test)
+{
+        int i = 0;
+    int j;
+    while (environ[i])
+        i++;
+    test->env = malloc((i + 1) * sizeof(char *));
+    if (!test->env)
+        return;
+    i = 0;
+    while (environ[i])
+    {
+        test->env[i] = malloc((strlen(environ[i]) + 1) * sizeof(char));
+        if (!test->env[i])
+            return;
+        j = 0;
+        while (environ[i][j])
+        {
+            test->env[i][j] = environ[i][j];
+            j++;    
+        }
+        test->env[i][j] = '\0';
+        i++;
+    }
+    test->env[i] = NULL;
 }

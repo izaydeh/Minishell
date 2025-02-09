@@ -1,16 +1,27 @@
 #include "minishell.h"
 
-void ft_echo(t_shell *string)
+void ft_echo(t_shell *string, int i)
 {
-    if (string->split_the_split[0][1] == NULL && ft_strcmp(string->split_the_split[0][0], "echo") == 0)
+    int j = 0;
+    if (string->command[i][1] == NULL && ft_strcmp(string->command[i][0], "echo") == 0)
         write(1, "\n", 1);
-    else if (ft_strcmp(string->split_the_split[0][1], "-n") != 0)
-        printf("%s\n",string->split_the_split[0][1]);
-    else if (ft_strcmp(string->split_the_split[0][1], "-n") == 0)
-        printf("%s",string->split_the_split[0][2]);
-    else
+    else if (ft_strcmp(string->command[i][1], "-n") == 0)
     {
-        printf("%s", "there is error in ehco");
-        return ;
+        while (string->command[i][2][j])
+        {
+            write(1, &string->command[i][2][j], 1);
+            j++;
+        }
     }
+    else if (ft_strcmp(string->command[i][1], "-n") != 0)
+    {
+        while (string->command[i][1][j])
+        {
+            write(1, &string->command[i][1][j], 1);
+            j++;
+        }
+        write(1, "\n", 1);
+    }
+    else
+        perror("there is error in ehco");
 }
