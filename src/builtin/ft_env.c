@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-extern char **environ;
+
 
 void ft_env(t_shell *test)
 {
@@ -14,7 +14,8 @@ void ft_env(t_shell *test)
 }
 void ft_env_init(t_shell *test)
 {
-        int i = 0;
+    extern char **environ;
+    int i = 0;
     int j;
     while (environ[i])
         i++;

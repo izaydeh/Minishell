@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:48:58 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/09 15:17:59 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/02/09 20:07:11 by ikhalil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,8 @@ void 	ft_echo(t_shell *string, int i);
 void 	ft_env(t_shell *test);
 void 	ft_env_init(t_shell *test);
 void 	ft_pwd();
+void	ft_export(t_shell *test, char **args);
+void	ft_unset(t_shell *test, char **args);
 
 //execve.c
 char 	*getpath(char **test);
