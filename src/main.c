@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:46:28 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/09 17:05:28 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/02/09 20:08:46 by ikhalil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ int main()
 
     signal(SIGINT,handle_signals); // Handle Ctrl + C => New line
     signal(SIGQUIT, SIG_IGN); // Hanlde Cntrl + \ => Do Nothing
+    ft_env_init(&test);
     while (1)
     {   
         test.input = readline("welcome to (shell)>");
@@ -36,7 +37,6 @@ int main()
             command_count(&test);
             operate(&test);
             dir(&test);
-            ft_env_init(&test);
             int i = 0;
             while (test.dir[i])
             {
@@ -50,6 +50,10 @@ int main()
             }
             if (strcmp(test.command[0][0], "cd") == 0 && test.command_count == 1)
                 ft_cd(&test);
+            else if (test.command[0] && strcmp(test.command[0][0], "export") == 0)
+                ft_export(&test, test.command[0]);
+            else if (test.command[0] && strcmp(test.command[0][0], "unset") == 0)
+                ft_unset(&test, test.command[0]);
             else
                 execute_pipeline(&test);
             add_history(test.input);
