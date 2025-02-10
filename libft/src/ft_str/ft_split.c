@@ -15,9 +15,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>o
+#include <ctype.h>
 
-/* === Helpers =================================================== */
+/* === Helper Functions ============================================== */
 
 // Return 1 if op is one of the redirection operators.
 int is_redirection_operator(const char *op) {
@@ -25,8 +25,9 @@ int is_redirection_operator(const char *op) {
             strcmp(op, "<") == 0 || strcmp(op, "<<") == 0);
 }
 
-// Trim leading and trailing whitespace from str.  
-// The pointers *start and *end are set to the first non–space and one–past–the–last non–space character.
+// Trim leading and trailing whitespace in str.
+// The function sets *start to point to the first non–space character,
+// and *end to point one–past the last non–space character.
 void trim(char *str, char **start, char **end) {
     while (isspace((unsigned char)*str))
         str++;
@@ -66,29 +67,22 @@ int is_operator(const char *s, int *op_len) {
 
 /* === Tokenizer ===================================================
 
-   The function below “tokenizes” the input string into tokens and
-   stores them in the provided array tokens (with capacity max_tokens).
-   
-   In addition, an integer array cmd_flags (of the same length) is used
-   to mark tokens that are created from a “normal” (non–redirection) chunk
-   (flag 1) versus those that are produced as part of a redirection operand
-   (flag 0). Operator tokens are marked with –1.
-   
-   The idea is that when a redirection operator is encountered the next
-   non–operator chunk is split at its first space. Its first word is always
-   output as a token (the “operand”). If there is extra text:
-     • If the current command group already has a normal token (cmd_flags==1)
-       then that extra text is merged (appended, with a separating space)
-       into that token.
-     • Otherwise, the extra text is output as a separate token and marked as
-       a command token.
-   
-   A “command group” is delimited by the pipe operator (“|”). */
+   The tokenizer produces tokens from the input string and also marks
+   (via an auxiliary array cmd_flags) tokens that were produced as part
+   of a normal (non–redirection) chunk (flag 1) versus tokens produced
+   as a redirection operand (flag 0). Operator tokens are marked as –1.
 
+   When a redirection operator (<, <<, >, >>) is encountered, the next
+   non–operator chunk is trimmed and then split at the first whitespace.
+   The first word (from the trimmed region) becomes the redirection operand.
+   Any extra text after that word is taken only from within the trimmed region,
+   so that any extra spaces (at the end of the operand) are not included.
+   
+   A pipe operator ("|") resets the command–group info. */
 int tokenize_input(const char *input, char **tokens, int max_tokens, int *cmd_flags) {
     int token_count = 0;
-    int last_cmd_index = -1;   // index of the last token that was created normally
-    int has_command = 0;       // flag for current command group (set to 1 when a normal token is seen)
+    int last_cmd_index = -1;   // index of the last normal (non–redirection) token
+    int has_command = 0;       // flag indicating a normal token exists in the current group
     const char *p = input;
     int prev_redir = 0;        // flag: next non–operator chunk is redirection operand
 
@@ -107,15 +101,15 @@ int tokenize_input(const char *input, char **tokens, int max_tokens, int *cmd_fl
             strncpy(op_token, p, op_len);
             op_token[op_len] = '\0';
             tokens[token_count] = op_token;
-            cmd_flags[token_count] = -1;  // operator
+            cmd_flags[token_count] = -1;  // operator token
             token_count++;
 
-            // If the operator is a pipe, reset command–group info.
+            // If a pipe is encountered, reset the current command group.
             if (strcmp(op_token, "|") == 0) {
                 has_command = 0;
                 last_cmd_index = -1;
             }
-            // For redirection operators (<, <<, >, >>) set flag.
+            // For redirection operators, set flag so that the next chunk is treated specially.
             if (is_redirection_operator(op_token))
                 prev_redir = 1;
             else
@@ -136,7 +130,7 @@ int tokenize_input(const char *input, char **tokens, int max_tokens, int *cmd_fl
             strncpy(part, start_ptr, part_len);
             part[part_len] = '\0';
 
-            // Trim the part.
+            // Trim the chunk.
             char *trim_start, *trim_end;
             trim(part, &trim_start, &trim_end);
             int trimmed_len = trim_end - trim_start;
@@ -147,7 +141,9 @@ int tokenize_input(const char *input, char **tokens, int max_tokens, int *cmd_fl
             }
 
             if (prev_redir) {
-                /* Redirection operand: split at the first whitespace. */
+                /* Redirection operand: split the trimmed chunk at the first whitespace.
+                   Use only the trimmed region (from trim_start up to trim_end)
+                   so that any trailing spaces are not included. */
                 char *space = NULL;
                 for (int i = 0; i < trimmed_len; i++) {
                     if (isspace((unsigned char)trim_start[i])) {
@@ -162,50 +158,50 @@ int tokenize_input(const char *input, char **tokens, int max_tokens, int *cmd_fl
                     strncpy(operand, trim_start, word_len);
                     operand[word_len] = '\0';
                     tokens[token_count++] = operand;
-                    cmd_flags[token_count - 1] = 0;  // redir operand (not a normal command token)
+                    cmd_flags[token_count - 1] = 0;  // redirection operand token
 
-                    /* Now process extra text (if any) after the first word. */
+                    /* Process any extra text after the first word.
+                       Only consider characters up to trim_end. */
                     char *rem = space;
-                    while (*rem && isspace((unsigned char)*rem))
+                    while (rem < trim_end && isspace((unsigned char)*rem))
                         rem++;
-                    if (*rem != '\0') {
-                        /* If the current command group already has a normal token,
-                           then merge the extra text into that token.
-                           Otherwise, output the extra text as a new token and mark it as a command token. */
+                    if (rem < trim_end) {
+                        int extra_len = trim_end - rem;
                         if (has_command && last_cmd_index != -1 && cmd_flags[last_cmd_index] == 1) {
                             size_t old_len = strlen(tokens[last_cmd_index]);
-                            size_t extra_len = strlen(rem);
                             char *merged = malloc(old_len + 1 + extra_len + 1);
                             if (!merged) { perror("malloc"); exit(EXIT_FAILURE); }
-                            sprintf(merged, "%s %s", tokens[last_cmd_index], rem);
+                            sprintf(merged, "%s %.*s", tokens[last_cmd_index], extra_len, rem);
                             free(tokens[last_cmd_index]);
                             tokens[last_cmd_index] = merged;
                         } else {
-                            char *extra = strdup(rem);
-                            if (!extra) { perror("strdup"); exit(EXIT_FAILURE); }
+                            char *extra = malloc(extra_len + 1);
+                            if (!extra) { perror("malloc"); exit(EXIT_FAILURE); }
+                            strncpy(extra, rem, extra_len);
+                            extra[extra_len] = '\0';
                             tokens[token_count++] = extra;
-                            cmd_flags[token_count - 1] = 0;  // token from redir extra text
-                            /* Now mark this as the command token for the current group. */
+                            cmd_flags[token_count - 1] = 0;  // token from redirection extra text
                             has_command = 1;
                             last_cmd_index = token_count - 1;
                         }
                     }
                 } else {
-                    /* No whitespace found: the whole trimmed part is the operand. */
-                    char *operand = strdup(trim_start);
-                    if (!operand) { perror("strdup"); exit(EXIT_FAILURE); }
+                    // No whitespace found in the trimmed chunk: the whole thing is the operand.
+                    char *operand = malloc(trimmed_len + 1);
+                    if (!operand) { perror("malloc"); exit(EXIT_FAILURE); }
+                    strncpy(operand, trim_start, trimmed_len);
+                    operand[trimmed_len] = '\0';
                     tokens[token_count++] = operand;
                     cmd_flags[token_count - 1] = 0;
                 }
                 prev_redir = 0;
             } else {
-                /* Normal (non–redirection) token: keep the whole trimmed string. */
+                // Normal token: copy exactly the trimmed region.
                 char *token_str = malloc(trimmed_len + 1);
                 if (!token_str) { perror("malloc"); exit(EXIT_FAILURE); }
                 strncpy(token_str, trim_start, trimmed_len);
                 token_str[trimmed_len] = '\0';
                 tokens[token_count++] = token_str;
-                /* Mark this token as a normal command token. */
                 cmd_flags[token_count - 1] = 1;
                 has_command = 1;
                 last_cmd_index = token_count - 1;
@@ -219,14 +215,11 @@ int tokenize_input(const char *input, char **tokens, int max_tokens, int *cmd_fl
 /* === ft_split ===================================================
 
    Allocates and returns a NULL–terminated array of tokens parsed from input.
-   The caller must free each token and the array.
-*/
+   The caller must free each token and the tokens array. */
 char **ft_split(const char *input) {
     const int max_tokens = 100;
     char **tokens = malloc((max_tokens + 1) * sizeof(char *));
     if (!tokens) { perror("malloc"); exit(EXIT_FAILURE); }
-    /* We use an auxiliary array for command–token flags.
-       (Operators: –1, normal command tokens: 1, redirection–operand tokens: 0.) */
     int *cmd_flags = malloc(max_tokens * sizeof(int));
     if (!cmd_flags) { perror("malloc"); exit(EXIT_FAILURE); }
 
