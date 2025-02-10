@@ -301,6 +301,37 @@ static char **ft_split_whitespace(char *s)
     return tokens;
 }
 
+static char **ft_split_echo(char *s)
+{
+    char **tokens;
+    const char *start;
+
+    tokens = malloc(3 * sizeof(char *));
+    if (!tokens)
+        return NULL;
+
+    /* Skip any leading whitespace */
+    while (*s == ' ')
+        s++;
+
+    /* The first word should be "echo". We assume the input is well‐formed. */
+    start = s;
+    while (*s && *s != ' ')
+        s++;
+    tokens[0] = ft_substr(start, 0, s - start);
+
+    /* Skip spaces after the command word */
+    while (*s == ' ')
+        s++;
+
+    /* The rest of the string is kept as a single token.
+       (Even if it is empty, you may want to store an empty string.) */
+    tokens[1] = ft_strdup(s);
+    tokens[2] = NULL;
+    return tokens;
+}
+
+
 char ***split_commands(char **s)
 {
     char ***final_split;
@@ -314,8 +345,16 @@ char ***split_commands(char **s)
     if (!final_split)
         return NULL;
     for (size_t i = 0; i < count; i++)
-        final_split[i] = ft_split_whitespace(s[i]);
+    {
+        /* Check if the command starts with "echo" 
+           (assuming s[i] is already trimmed of leading spaces) */
+        if (!ft_strncmp(s[i], "echo", 4) && (s[i][4] == ' ' || s[i][4] == '\0'))
+            final_split[i] = ft_split_echo(s[i]);
+        else
+            final_split[i] = ft_split_whitespace(s[i]);
+    }
     final_split[count] = NULL;
     return final_split;
 }
+
 

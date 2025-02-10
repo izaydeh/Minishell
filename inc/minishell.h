@@ -74,4 +74,8 @@ int 	handle_output_redirection(const char *filename, int *out_fd, int append);
 int 	handle_here_doc(const char *delimiter, int *in_fd);
 int 	get_redirections(char *filename, char *operator, int *in_fd, int *out_fd);
 
+//expander
+char	*expand_token(const char *token, t_shell *shell);
+
+
 #endif
