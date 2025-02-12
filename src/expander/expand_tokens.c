@@ -14,142 +14,241 @@
 
 char	*get_env_value(t_shell *shell, char *name)
 {
-    int name_len = ft_strlen(name);
-    int i = 0;
-    while (shell->env[i])
-    {
-        if (!ft_strncmp(shell->env[i], name, name_len) && shell->env[i][name_len] == '=')
-            return (shell->env[i] + name_len + 1);
-        i++;
-    }
-    return ("");
+	int	name_len;
+	int	i;
+
+	name_len = ft_strlen(name);
+	i = 0;
+	while (shell->env[i])
+	{
+		if (ft_strncmp(shell->env[i], name, name_len) == 0)
+		{
+			if (shell->env[i][name_len] == '=')
+			{
+				return (shell->env[i] + name_len + 1);
+			}
+		}
+		i++;
+	}
+	return ("");
 }
 
-/*
- * expand_token:
- *
- * Processes a raw token (with quotes) and returns a new allocated string
- * where the following rules hold:
- *
- *   - In the NORMAL (unquoted) state, a '$' is followed by a variable name
- *     (letters, digits, underscores) and is expanded.
- *
- *   - In a DOUBLE-QUOTED segment, variables are expanded; the surrounding
- *     double quotes are removed.
- *
- *   - In a SINGLE-QUOTED segment, everything is taken literally and no
- *     expansion is performed; the surrounding single quotes are removed.
- *
- *   Adjacent quoted segments are concatenated just as bash does.
- */
+static char	*collapse_whitespace(const char *s)
+{
+	int		i;
+	int		j;
+	int		len;
+	char	*new;
+
+	len = ft_strlen(s);
+	new = malloc(len + 1);
+	if (new == NULL)
+	{
+		return (NULL);
+	}
+	i = 0;
+	j = 0;
+	while (s[i])
+	{
+		while (s[i] == ' ')
+		{
+			i++;
+		}
+		if (s[i] == '\0')
+		{
+			break;
+		}
+		if (j > 0)
+		{
+			new[j] = ' ';
+			j++;
+		}
+		while (s[i] && s[i] != ' ')
+		{
+			new[j] = s[i];
+			j++;
+			i++;
+		}
+	}
+	new[j] = '\0';
+	return (new);
+}
+
+static int	should_collapse(const char *token)
+{
+	int		start;
+	int		end;
+	int		len;
+	char	c;
+
+	if (token == NULL || token[0] == '\0')
+	{
+		return (1);
+	}
+	c = token[0];
+	if (c != '\"' && c != '\'')
+	{
+		return (1);
+	}
+	start = 0;
+	while (token[start] && token[start] == c)
+	{
+		start++;
+	}
+	len = ft_strlen(token);
+	end = len - 1;
+	while (end >= 0 && token[end] == c)
+	{
+		end--;
+	}
+	if ((start % 2) == 1 && (((len - 1) - end) % 2) == 1)
+	{
+		return (0);
+	}
+	return (1);
+}
+
+static const char	*process_dollar(const char *s, t_shell *shell, t_exp *exp)
+{
+	char	var[128];
+	int		i;
+	char	*value;
+	int		j;
+
+	s++;
+	if (*s == '\0' || (ft_isalpha(*s) == 0 && *s != '_'))
+	{
+		*(exp->out) = '$';
+		exp->out++;
+		return (s);
+	}
+	i = 0;
+	while (s[i] && (ft_isalnum(s[i]) || s[i] == '_') && i < 127)
+	{
+		var[i] = s[i];
+		i++;
+	}
+	var[i] = '\0';
+	s = s + i;
+	value = get_env_value(shell, var);
+	j = 0;
+	while (value[j])
+	{
+		*(exp->out) = value[j];
+		exp->out++;
+		j++;
+	}
+	return (s);
+}
+
+static const char	*process_single(const char *s, t_exp *exp)
+{
+	s++;
+	while (*s && *s != '\'')
+	{
+		*(exp->out) = *s;
+		exp->out++;
+		s++;
+	}
+	if (*s == '\'')
+	{
+		s++;
+	}
+	return (s);
+}
+
+static const char	*process_double(const char *s, t_shell *shell, t_exp *exp)
+{
+	s++;
+	while (*s && *s != '\"')
+	{
+		if (*s == '\\')
+		{
+			s++;
+			if (*s == '\"' || *s == '\\' || *s == '$' || *s == '`')
+			{
+				*(exp->out) = *s;
+				exp->out++;
+				s++;
+			}
+			else
+			{
+				*(exp->out) = '\\';
+				exp->out++;
+			}
+		}
+		else if (*s == '$')
+		{
+			s = process_dollar(s, shell, exp);
+		}
+		else
+		{
+			*(exp->out) = *s;
+			exp->out++;
+			s++;
+		}
+	}
+	if (*s == '\"')
+	{
+		s++;
+	}
+	return (s);
+}
+
+static const char	*process_unquoted(const char *s, t_shell *shell, t_exp *exp)
+{
+	while (*s && *s != '\"' && *s != '\'')
+	{
+		if (*s == '$')
+		{
+			s = process_dollar(s, shell, exp);
+		}
+		else
+		{
+			*(exp->out) = *s;
+			exp->out++;
+			s++;
+		}
+	}
+	return (s);
+}
+
 char	*expand_token(const char *token, t_shell *shell)
 {
-    enum { NORMAL, SINGLE, DOUBLE } state = NORMAL;
-    size_t i = 0, j = 0;
-    size_t len = ft_strlen(token);
-    /* Over–estimate the output buffer size (you may later realloc if needed) */
-    size_t capacity = len * 2 + 1;
-    char *result = malloc(capacity);
-    if (!result)
-        return (NULL);
-    
-    while (i < len)
-    {
-        char c = token[i];
-        if (state == NORMAL)
-        {
-            if (c == '\'')
-            {
-                state = SINGLE;
-                i++;  // Skip the opening single quote
-            }
-            else if (c == '"')
-            {
-                state = DOUBLE;
-                i++;  // Skip the opening double quote
-            }
-            else if (c == '$')
-            {
-                i++;  // Skip '$'
-                /* Check if the next character begins a valid variable name */
-                if (i >= len || (!(ft_isalpha(token[i]) || token[i] == '_')))
-                {
-                    result[j++] = '$';
-                }
-                else
-                {
-                    size_t start = i;
-                    while (i < len && (ft_isalnum(token[i]) || token[i] == '_'))
-                        i++;
-                    char *var_name = ft_substr(token, start, i - start);
-                    if (!var_name)
-                    {
-                        free(result);
-                        return (NULL);
-                    }
-                    char *value = get_env_value(shell, var_name);
-                    free(var_name);
-                    for (size_t k = 0; value[k] != '\0'; k++)
-                        result[j++] = value[k];
-                }
-            }
-            else
-            {
-                result[j++] = c;
-                i++;
-            }
-        }
-        else if (state == SINGLE)
-        {
-            if (c == '\'')
-            {
-                state = NORMAL;
-                i++;  // Skip the closing single quote
-            }
-            else
-            {
-                result[j++] = c;
-                i++;
-            }
-        }
-        else if (state == DOUBLE)
-        {
-            if (c == '"')
-            {
-                state = NORMAL;
-                i++;  // Skip the closing double quote
-            }
-            else if (c == '$')
-            {
-                i++;  // Skip '$'
-                if (i >= len || (!(ft_isalpha(token[i]) || token[i] == '_')))
-                {
-                    result[j++] = '$';
-                }
-                else
-                {
-                    size_t start = i;
-                    while (i < len && (ft_isalnum(token[i]) || token[i] == '_'))
-                        i++;
-                    char *var_name = ft_substr(token, start, i - start);
-                    if (!var_name)
-                    {
-                        free(result);
-                        return (NULL);
-                    }
-                    char *value = get_env_value(shell, var_name);
-                    free(var_name);
-                    for (size_t k = 0; value[k] != '\0'; k++)
-                        result[j++] = value[k];
-                }
-            }
-            else
-            {
-                result[j++] = c;
-                i++;
-            }
-        }
-    }
-    result[j] = '\0';
-    return (result);
+	t_exp		exp;
+	const char	*s;
+	size_t		len;
+	char		*final;
+
+	len = ft_strlen(token);
+	exp.res = malloc(len * 2 + 1);
+	if (exp.res == NULL)
+	{
+		return (NULL);
+	}
+	exp.out = exp.res;
+	s = token;
+	while (*s)
+	{
+		if (*s == '\'')
+		{
+			s = process_single(s, &exp);
+		}
+		else if (*s == '\"')
+		{
+			s = process_double(s, shell, &exp);
+		}
+		else
+		{
+			s = process_unquoted(s, shell, &exp);
+		}
+	}
+	*exp.out = '\0';
+	if (should_collapse(token))
+	{
+		final = collapse_whitespace(exp.res);
+		free(exp.res);
+		return (final);
+	}
+	return (exp.res);
 }

@@ -6,14 +6,12 @@
 /*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:46:28 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/09 20:08:46 by ikhalil          ###   ########.fr       */
+/*   Updated: 2025/02/12 07:05:55 by ikhalil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-
-#include "minishell.h"
 
 int main(void)
 {

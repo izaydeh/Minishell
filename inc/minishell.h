@@ -6,7 +6,7 @@
 /*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:48:58 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/09 20:07:11 by ikhalil          ###   ########.fr       */
+/*   Updated: 2025/02/12 08:30:07 by ikhalil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,14 @@ typedef struct s_shell
 	int		operate_count;
 	int		dir_count;
 }			t_shell;
+
+// struct for Expander
+typedef struct s_exp
+{
+	char	*res;
+	char	*out;
+}	t_exp;
+
 
 //utils.c
 int 	count_max_operate(t_shell *test, int y);
