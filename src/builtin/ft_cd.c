@@ -1,19 +1,32 @@
 #include "minishell.h"
 
-void ft_cd(t_shell *path)
+void ft_cd(t_shell *shell, int i)
 {
-    if (path->command[0][1] != NULL)
+    char *target = NULL;
+    char *home = get_env_value(shell, "HOME");
+
+    if (!shell->command[i][1] || strcmp(shell->command[i][1], "~") == 0 || strcmp(shell->command[i][1], "--") == 0)
     {
-        if (chdir(path->command[0][1]) != 0)
-            perror("the path in cd is error");
+        if (!home)
+        {
+            perror("cd: HOME not set\n");
+            shell->exit_status = 1;
+            return;
+        }
+        target = home;
+        printf("%s\n", target);
+    }
+    else
+        target = shell->command[i][1];
+    get_old_pwd(shell);
+    if (chdir(target) != 0)
+    {
+        perror("cd");
+        shell->exit_status = 1;
     }
     else
     {
-        char *home_dir = getenv("HOME");
-        if (home_dir != NULL)
-        {
-            if (chdir(home_dir) != 0)
-                perror("the path in cd is error");
-        }
+        update_pwd(shell);
+        shell->exit_status = 0;
     }
 }

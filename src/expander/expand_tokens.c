@@ -12,27 +12,6 @@
 
 #include "minishell.h"
 
-char	*get_env_value(t_shell *shell, char *name)
-{
-	int	name_len;
-	int	i;
-
-	name_len = ft_strlen(name);
-	i = 0;
-	while (shell->env[i])
-	{
-		if (ft_strncmp(shell->env[i], name, name_len) == 0)
-		{
-			if (shell->env[i][name_len] == '=')
-			{
-				return (shell->env[i] + name_len + 1);
-			}
-		}
-		i++;
-	}
-	return ("");
-}
-
 static char	*collapse_whitespace(const char *s)
 {
 	int		i;

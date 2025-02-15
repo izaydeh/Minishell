@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:46:28 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/12 07:05:55 by ikhalil          ###   ########.fr       */
+/*   Updated: 2025/02/15 23:05:35 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ int main(void)
         /* Execute built-in commands or external commands */
         if (test.command && test.command[0] && 
             strcmp(test.command[0][0], "cd") == 0 && test.command_count == 1)
-            ft_cd(&test);
+            ft_cd(&test, 0);
         else if (test.command && test.command[0] && 
                  strcmp(test.command[0][0], "export") == 0)
             ft_export(&test, test.command[0]);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:48:58 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/12 08:30:07 by ikhalil          ###   ########.fr       */
+/*   Updated: 2025/02/15 23:10:06 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,19 +34,19 @@ typedef struct s_shell
 	char	***dir;
 	char	***operate;
 	char	**env;
+	char	*old_pwd;
 	int		command_count;
 	int 	exit_status;
 	int		operate_count;
 	int		dir_count;
 }			t_shell;
 
-// struct for Expander
+// struct for expander
 typedef struct s_exp
 {
 	char	*res;
 	char	*out;
 }	t_exp;
-
 
 //utils.c
 int 	count_max_operate(t_shell *test, int y);
@@ -58,17 +58,21 @@ void 	command_count(t_shell *test);//commands
 
 //./bulitin folder
 int		is_builtin_funcion(t_shell *test, int i);
-void 	run_builtin_function(t_shell *test, int i, int out_fd);
-void 	ft_cd(t_shell *path);
+void 	run_builtin_function(t_shell *shell, int i, int out_fd);
+void 	ft_cd(t_shell *path, int i);
 void 	ft_echo(t_shell *string, int i);
 void 	ft_env(t_shell *test);
 void 	ft_env_init(t_shell *test);
 void 	ft_pwd();
 void	ft_export(t_shell *test, char **args);
 void	ft_unset(t_shell *test, char **args);
+void 	get_old_pwd(t_shell *shell);
+char	*get_env_value(t_shell *shell, char *var);
+void 	update_pwd(t_shell *shell);
+void 	re_shlvl(t_shell *shell);
 
 //execve.c
-char 	*getpath(char **test);
+char	*getpath(t_shell *shell, char **test);
 
 //handel_signals
 void    handle_signals(int  sig);
@@ -79,11 +83,10 @@ void 	execute_pipeline(t_shell *shell);
 //redirection.c
 int 	handle_input_redirection(char *filename, int *in_fd);
 int 	handle_output_redirection(const char *filename, int *out_fd, int append);
-int 	handle_here_doc(const char *delimiter, int *in_fd);
+int 	handle_here_doc(char *here_doc_world, int *in_fd) ;
+int 	check_operator(char *filename, char *operate, int *in_fd, int *out_fd);
 int 	get_redirections(char *filename, char *operator, int *in_fd, int *out_fd);
 
 //expander
 char	*expand_token(const char *token, t_shell *shell);
-
-
 #endif
