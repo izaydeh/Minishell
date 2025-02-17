@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:46:28 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/17 17:52:50 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/02/17 18:12:56 by ikhalil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,10 @@ int main(void)
     {   
         test.input = readline("welcome to (shell)> ");
         if (!test.input)
+        {
+            write (2, "exit\n", 5);
             break;
+        }
         if (!test.input[0])
         {
             free(test.input);
@@ -38,7 +41,7 @@ int main(void)
             while (test.input_splitted[idx])
             {
                 char *expanded = expand_token(test.input_splitted[idx], &test);
-                free(test.input_splitted[idx]);
+                //free(test.input_splitted[idx]);
                 test.input_splitted[idx] = expanded;
                 idx++;
             }

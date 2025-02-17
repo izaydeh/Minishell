@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-static char	*collapse_whitespace(const char *s)
+char	*collapse_whitespace(char *s)
 {
 	int		i;
 	int		j;
@@ -35,7 +35,7 @@ static char	*collapse_whitespace(const char *s)
 		}
 		if (s[i] == '\0')
 		{
-			break;
+			break ;
 		}
 		if (j > 0)
 		{
@@ -53,7 +53,7 @@ static char	*collapse_whitespace(const char *s)
 	return (new);
 }
 
-static int	should_collapse(const char *token)
+int	should_collapse(char *token)
 {
 	int		start;
 	int		end;
@@ -87,40 +87,7 @@ static int	should_collapse(const char *token)
 	return (1);
 }
 
-static const char	*process_dollar(const char *s, t_shell *shell, t_exp *exp)
-{
-	char	var[128];
-	int		i;
-	char	*value;
-	int		j;
-
-	s++;
-	if (*s == '\0' || (ft_isalpha(*s) == 0 && *s != '_'))
-	{
-		*(exp->out) = '$';
-		exp->out++;
-		return (s);
-	}
-	i = 0;
-	while (s[i] && (ft_isalnum(s[i]) || s[i] == '_') && i < 127)
-	{
-		var[i] = s[i];
-		i++;
-	}
-	var[i] = '\0';
-	s = s + i;
-	value = get_env_value(shell, var);
-	j = 0;
-	while (value[j])
-	{
-		*(exp->out) = value[j];
-		exp->out++;
-		j++;
-	}
-	return (s);
-}
-
-static const char	*process_single(const char *s, t_exp *exp)
+char	*process_single(char *s, t_exp *exp)
 {
 	s++;
 	while (*s && *s != '\'')
@@ -136,7 +103,25 @@ static const char	*process_single(const char *s, t_exp *exp)
 	return (s);
 }
 
-static const char	*process_double(const char *s, t_shell *shell, t_exp *exp)
+char	*process_unquoted(char *s, t_shell *shell, t_exp *exp)
+{
+	while (*s && *s != '\"' && *s != '\'')
+	{
+		if (*s == '$')
+		{
+			s = process_dollar(s, shell, exp);
+		}
+		else
+		{
+			*(exp->out) = *s;
+			exp->out++;
+			s++;
+		}
+	}
+	return (s);
+}
+
+char	*process_double(char *s, t_shell *shell, t_exp *exp)
 {
 	s++;
 	while (*s && *s != '\"')
@@ -174,28 +159,10 @@ static const char	*process_double(const char *s, t_shell *shell, t_exp *exp)
 	return (s);
 }
 
-static const char	*process_unquoted(const char *s, t_shell *shell, t_exp *exp)
-{
-	while (*s && *s != '\"' && *s != '\'')
-	{
-		if (*s == '$')
-		{
-			s = process_dollar(s, shell, exp);
-		}
-		else
-		{
-			*(exp->out) = *s;
-			exp->out++;
-			s++;
-		}
-	}
-	return (s);
-}
-
-char	*expand_token(const char *token, t_shell *shell)
+char	*expand_token(char *token, t_shell *shell)
 {
 	t_exp		exp;
-	const char	*s;
+	char		*s;
 	size_t		len;
 	char		*final;
 

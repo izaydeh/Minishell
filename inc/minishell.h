@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:48:58 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/17 17:46:55 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/02/17 18:33:41 by ikhalil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,14 @@ int 	check_operator(char *filename, char *operate, int *in_fd, int *out_fd);
 int 	get_redirections(char *filename, char *operator, int *in_fd, int *out_fd);
 
 //expander
-char	*expand_token(const char *token, t_shell *shell);
+char	*expand_token(char *token, t_shell *shell);
+char	*collapse_whitespace(char *s);
+char	*process_dollar(char *s, t_shell *shell, t_exp *exp);
+char	*process_single(char *s, t_exp *exp);
+char	*process_double(char *s, t_shell *shell, t_exp *exp);
+char	*process_unquoted(char *s, t_shell *shell, t_exp *exp);
+int		should_collapse(char *token);
+
 
 //free_and_exit
 void free_shell(t_shell *shell, int i, int f);
