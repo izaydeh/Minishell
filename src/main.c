@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
+/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:46:28 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/17 08:53:17 by shoaib           ###   ########.fr       */
+/*   Updated: 2025/02/17 17:52:50 by sal-kawa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,25 +59,10 @@ int main(void)
             ft_unset(&test, test.command[0]);
         else
             execute_pipeline(&test);
-
         add_history(test.input);
-        free(test.input);
-        free_2d(test.input_splitted);
-        test.input_splitted = NULL;
-    
-        free_3d(test.split_the_split);
-        test.split_the_split = NULL;
-    
-        free_3d(test.command);
-        test.command = NULL;
-    
-        free_3d(test.dir);
-        test.dir = NULL;
-    
-        free_3d(test.operate);
-        test.operate = NULL;
+        // free_shell(&test, 0, 0);
     }
-    free_shell(&test, 0);
+    // free_shell(&test, 0, 1);
     return (0);
 }
             // while (test.input_splitted[i])
