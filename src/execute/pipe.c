@@ -6,26 +6,12 @@
 /*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:59:18 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/15 03:49:12 by shoaib           ###   ########.fr       */
+/*   Updated: 2025/02/17 08:55:02 by shoaib           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void free_str_array(char **array)
-{
-    int i = 0;
-
-    if (!array)
-        return;
-
-    while (array[i])
-    {
-        free(array[i]);
-        i++;
-    }
-    free(array);
-}
 void execute_pipeline(t_shell *shell)
 {
  	int		i;
@@ -73,8 +59,7 @@ void execute_pipeline(t_shell *shell)
 			if (pipe(pipe_fd) == -1)
 			{
 				perror("pipe");
-				shell->exit_status = 1;
-				exit(1);
+				free_shell(shell, 1);
 			}
 			pipe_created = 1;
 		}
@@ -82,7 +67,7 @@ void execute_pipeline(t_shell *shell)
 		if (pid < 0)
 		{
 			perror("fork");
-			exit(1);//1
+			free_shell(shell, 1);
 		}
 		if (pid == 0)
 		{
@@ -131,7 +116,7 @@ void execute_pipeline(t_shell *shell)
 			if (!cmd_path)
 			{
 				perror(argv[0]);
-				free_str_array(argv);
+				free_2d(argv);
 				shell->exit_status = 127;
 				exit(127);
 			}
@@ -139,7 +124,7 @@ void execute_pipeline(t_shell *shell)
 			if (execve(cmd_path, argv, shell->env) == -1)
             {
 				perror("execve");
-	            free_str_array(argv);
+	            free_2d(argv);
 	            free(cmd_path);
 				shell->exit_status = 126;
 	            exit(126);//126
