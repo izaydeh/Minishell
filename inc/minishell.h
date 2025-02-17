@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
+/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:48:58 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/17 08:31:22 by shoaib           ###   ########.fr       */
+/*   Updated: 2025/02/17 17:46:55 by sal-kawa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,8 +91,8 @@ int 	get_redirections(char *filename, char *operator, int *in_fd, int *out_fd);
 char	*expand_token(const char *token, t_shell *shell);
 
 //free_and_exit
-void 	free_shell(t_shell *shell, int i);
-void 	free_3d(char ***array);
-void 	free_2d(char **array);
+void free_shell(t_shell *shell, int i, int f);
+void 	free_3d(char ***ar);
+void 	free_2d(char **ar);
 
 #endif

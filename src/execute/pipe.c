@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipe.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
+/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:59:18 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/17 08:55:02 by shoaib           ###   ########.fr       */
+/*   Updated: 2025/02/17 17:43:24 by sal-kawa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ void execute_pipeline(t_shell *shell)
 			if (pipe(pipe_fd) == -1)
 			{
 				perror("pipe");
-				free_shell(shell, 1);
+				free_shell(shell, 1, 1);
 			}
 			pipe_created = 1;
 		}
@@ -67,7 +67,7 @@ void execute_pipeline(t_shell *shell)
 		if (pid < 0)
 		{
 			perror("fork");
-			free_shell(shell, 1);
+			free_shell(shell, 1, 1);
 		}
 		if (pid == 0)
 		{
