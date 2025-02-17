@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:46:28 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/15 23:05:35 by marvin           ###   ########.fr       */
+/*   Updated: 2025/02/17 08:53:17 by shoaib           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,34 +16,22 @@
 int main(void)
 {
     t_shell test;
-
-    /* Set up signal handlers */
+    ft_bzero(&test, sizeof(t_shell));
     signal(SIGINT, handle_signals);   // Handle Ctrl+C => New line
     signal(SIGQUIT, SIG_IGN);           // Ignore Ctrl+ /
-
-    /* Initialize environment */
     ft_env_init(&test);
-
+    re_shlvl(&test);
     while (1)
     {   
-        /* Read input from user */
         test.input = readline("welcome to (shell)> ");
         if (!test.input)
-        {
-            printf("exit\n");  // Handle Ctrl+D => Exit shell
             break;
-        }
         if (!test.input[0])
         {
             free(test.input);
             continue;
         }
-
-        ft_printf("test: %s\n", test.input);
-
-        /* Split the input into tokens (for example, using your ft_split) */
         test.input_splitted = ft_split(test.input);
-
         /* ----- Variable Expansion Step ----- */
         {
             int idx = 0;
@@ -56,29 +44,10 @@ int main(void)
             }
         }
         /* ----------------------------------- */
-
-        /* Further processing: e.g., split into commands, count tokens, etc. */
         test.split_the_split = split_commands(test.input_splitted);
         command_count(&test);
         operate(&test);
         dir(&test);
-
-        /* Debug print of directory tokens */
-        {
-            int i = 0;
-            while (test.dir && test.dir[i])
-            {
-                int j = 0;
-                while (test.dir[i][j])
-                {
-                    ft_printf("dir[%d][%d]: %s\n", i, j, test.dir[i][j]);
-                    j++;
-                }
-                i++;
-            }
-        }
-
-        /* Execute built-in commands or external commands */
         if (test.command && test.command[0] && 
             strcmp(test.command[0][0], "cd") == 0 && test.command_count == 1)
             ft_cd(&test, 0);
@@ -93,9 +62,22 @@ int main(void)
 
         add_history(test.input);
         free(test.input);
-
-        /* Free allocated tokens and arrays as appropriate to avoid memory leaks */
+        free_2d(test.input_splitted);
+        test.input_splitted = NULL;
+    
+        free_3d(test.split_the_split);
+        test.split_the_split = NULL;
+    
+        free_3d(test.command);
+        test.command = NULL;
+    
+        free_3d(test.dir);
+        test.dir = NULL;
+    
+        free_3d(test.operate);
+        test.operate = NULL;
     }
+    free_shell(&test, 0);
     return (0);
 }
             // while (test.input_splitted[i])
