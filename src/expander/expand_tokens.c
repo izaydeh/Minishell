@@ -165,7 +165,9 @@ char	*expand_token(char *token, t_shell *shell)
 	char		*s;
 	size_t		len;
 	char		*final;
+    char        *original;
 
+	original = token;  // Save a pointer to the original token.
 	len = ft_strlen(token);
 	exp.res = malloc(len * 2 + 1);
 	if (exp.res == NULL)
@@ -190,7 +192,8 @@ char	*expand_token(char *token, t_shell *shell)
 		}
 	}
 	*exp.out = '\0';
-	if (should_collapse(token))
+	// Use the original token (or a copy) for determining collapse.
+	if (should_collapse(original))
 	{
 		final = collapse_whitespace(exp.res);
 		free(exp.res);
@@ -198,3 +201,4 @@ char	*expand_token(char *token, t_shell *shell)
 	}
 	return (exp.res);
 }
+
