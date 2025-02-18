@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
+/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:48:58 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/18 10:34:29 by ikhalil          ###   ########.fr       */
+/*   Updated: 2025/02/18 14:36:40 by sal-kawa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 #include <string.h>
 #include <fcntl.h> 
 #include <sys/types.h>
+#include <sys/stat.h>
 
 typedef struct s_shell
 {
@@ -39,6 +40,7 @@ typedef struct s_shell
 	int 	exit_status;
 	int		operate_count;
 	int		dir_count;
+	int		count_pipe;
 }			t_shell;
 
 // struct for expander
@@ -55,6 +57,7 @@ int 	count_max_dir(t_shell *test, int y);
 void 	dir(t_shell *test);//directoin
 int 	count_max_commands(t_shell *test);
 void 	command_count(t_shell *test);//commands
+void 	count_pipe(t_shell *shell);//pipe counter
 
 //./bulitin folder
 int		is_builtin_funcion(t_shell *test, int i);
@@ -80,6 +83,9 @@ void    handle_signals(int  sig);
 //pipe.c
 void 	execute_pipeline(t_shell *shell);
 
+// check_dir.c
+int 	check_dir(t_shell *shell);
+
 //redirection.c
 int 	handle_input_redirection(char *filename, int *in_fd);
 int 	handle_output_redirection(const char *filename, int *out_fd, int append);
@@ -98,8 +104,8 @@ int		should_delete_sp(char *token);
 
 
 //free_and_exit
-void free_shell(t_shell *shell, int i, int f);
-void 	free_3d(char ***ar);
-void 	free_2d(char **ar);
+void 	free_shell(t_shell *shell, int i, int f);
+void 	free_3d(char ****ar);
+void 	free_2d(char ***ar);
 
 #endif
