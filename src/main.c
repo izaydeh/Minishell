@@ -6,22 +6,23 @@
 /*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:46:28 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/18 14:42:00 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/02/18 18:25:49 by sal-kawa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 
-int main(void)
+int main(int argc,char **argv)
 {
+    (void)argc;
     t_shell test;
     ft_bzero(&test, sizeof(t_shell));
     signal(SIGINT, handle_signals);   // Handle Ctrl+C => New line
     signal(SIGQUIT, SIG_IGN);         // Ignore Ctrl+ /
     ft_env_init(&test);
     re_shlvl(&test);
-
+    test.name_program = argv[0];
     while (1)
     {   
         test.input = readline("welcome to (shell)> ");

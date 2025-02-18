@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   process_dollar_sign.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
+/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 18:20:48 by ikhalil           #+#    #+#             */
-/*   Updated: 2025/02/17 19:05:07 by ikhalil          ###   ########.fr       */
+/*   Updated: 2025/02/18 18:25:00 by sal-kawa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,11 +32,11 @@ static char	*handle_exit_status(char *s, t_shell *shell, t_exp *exp)
 	return (s + 1);
 }
 
-static char	*handle_shell_name(char *s, t_exp *exp)
+static char	*handle_shell_name(char *s, t_exp *exp, t_shell *shell)
 {
 	char	*name;
 
-	name = "minishell";
+	name = shell->name_program;
 	while (*name)
 	{
 		*(exp->out) = *name;
@@ -71,7 +71,7 @@ static char	*handle_digit(char *s, t_exp *exp)
 
 static char	*handle_variable(char *s, t_shell *shell, t_exp *exp)
 {
-	char	var[128];
+	char	var[2048];
 	int		i;
 	int		j;
 	char	*value;
@@ -103,7 +103,7 @@ char	*process_dollar(char *s, t_shell *shell, t_exp *exp)
 	if (*s == '?')
 		return (handle_exit_status(s, shell, exp));
 	if (*s == '0')
-		return (handle_shell_name(s, exp));
+		return (handle_shell_name(s, exp, shell));
 	if (ft_isdigit(*s))
 		return (handle_digit(s, exp));
 	if (*s == '\0' || (ft_isalpha(*s) == 0 && *s != '_'))

@@ -6,7 +6,7 @@
 /*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:48:58 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/18 14:36:40 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/02/18 18:19:46 by sal-kawa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ typedef struct s_shell
 	int		operate_count;
 	int		dir_count;
 	int		count_pipe;
+	char	*name_program;
 }			t_shell;
 
 // struct for expander

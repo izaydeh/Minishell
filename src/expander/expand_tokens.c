@@ -169,7 +169,7 @@ char	*expander(char *token, t_shell *shell)
 
 	original = token; 
 	len = ft_strlen(token);
-	exp.res = malloc(len * 2 + 1);
+	exp.res = malloc(8192);
 	if (exp.res == NULL)
 	{
 		return (NULL);
