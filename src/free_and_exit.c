@@ -1,48 +1,65 @@
 #include "minishell.h"
 
-void free_2d(char **ar)
+void free_2d(char ***ar)
 {
     int i = 0;
-    if (!ar)
+
+    if (!ar || !*ar)
         return;
-    while (ar[i])
+    while ((*ar)[i])
     {
-        free(ar[i]);
+        free((*ar)[i]);
         i++;
     }
-    free(ar);
+    free(*ar);
+    *ar = NULL;
 }
 
-void free_3d(char ***ar)
+void free_3d(char ****ar)
 {
     int i = 0;
-    if (!ar)
+
+    if (!ar || !*ar)
         return;
-    while (ar[i])
+    while ((*ar)[i])
     {
-        free_2d(ar[i]);
+        free_2d(&((*ar)[i]));
         i++;
     }
-    free(ar);
+    free(*ar);
+    *ar = NULL;
 }
 
 void free_shell(t_shell *shell, int i, int f)
 {
-    free(shell->input);
-    free_2d(shell->input_splitted);
-    free_3d(shell->split_the_split);
-    free_3d(shell->command);
-    free_3d(shell->dir);
-    free_3d(shell->operate);
-    shell->input_splitted = NULL;
-    shell->split_the_split = NULL;
-    shell->command = NULL;
-    shell->dir = NULL;
-    shell->operate = NULL;
+    if (shell->input)
+    {
+        free(shell->input);
+        if (shell->input_splitted)
+        {
+            free_2d(&shell->input_splitted);
+            free_3d(&shell->split_the_split);
+            shell->input = NULL;
+            shell->input_splitted = NULL;
+            shell->split_the_split = NULL;
+            shell->command = NULL;
+            shell->dir = NULL;
+            shell->operate = NULL;
+            shell->dir_count = 0;
+            shell->operate_count = 0;
+            shell->count_pipe = 0;
+            shell->command_count = 0;
+        }
+    }
     if(f)
     {
-        free_2d(shell->env);
-        free(shell->old_pwd);
+        free_2d(&shell->env);
+        shell->env = NULL;
+        if (shell->old_pwd)
+        {
+            free(shell->old_pwd);
+            shell->old_pwd = NULL;
+        }
         shell->exit_status = i;
         exit (i);
     }
