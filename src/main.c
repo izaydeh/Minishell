@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
+/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:46:28 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/18 10:34:29 by ikhalil          ###   ########.fr       */
+/*   Updated: 2025/02/18 14:42:00 by sal-kawa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,14 +34,11 @@ int main(void)
             break;
         if (!test.input[0])
         {
-            free(test.input);
+            free_shell(&test, 0, 0);
             continue;
         }
-        
-        
         test.input_splitted = ft_split(test.input);
         test.split_the_split = split_commands(test.input_splitted);
-
         int i = 0;
         while (test.split_the_split[i])
         {
@@ -56,9 +53,17 @@ int main(void)
             i++;
         }
         command_count(&test);
+        count_pipe(&test);
         operate(&test);
         dir(&test);
-        
+        if (test.command_count == 1 && test.count_pipe == 0)
+        {
+            if (check_dir(&test))
+            {
+                printf("%s is a directory.\n", test.input_splitted[0]);
+                continue;
+            }
+        }
         if (test.command && test.command[0] && 
             strcmp(test.command[0][0], "cd") == 0 && test.command_count == 1)
             ft_cd(&test, 0);
@@ -72,31 +77,31 @@ int main(void)
             execute_pipeline(&test);
 
         add_history(test.input);
-        /* free_shell(&test, 0, 0); */
+        free_shell(&test, 0, 0);
     }
-    /* free_shell(&test, 0, 1); */
+    free_shell(&test, 0, 1);
     return (0);
 }
 
-            // while (test.input_splitted[i])
-            // {
-            //     ft_printf("test_splted[%d]: %s\n", i, test.input_splitted[i]);
-            //     i++;
-            // }
-            // while (test.operate[i])
-            // {
-            //     ft_printf("operate[%d]: %s\n", i, test.operate[i]);
-            //     i++;
-            // }
-            // i = 0;
-            // i = 0;
-            // while (test.split_the_split[i])
-            // {
-            //     int j = 0;
-            //     while (test.split_the_split[i][j])
-            //     {
-            //         ft_printf("split_the_split[%d][%d]: %s\n", i, j, test.split_the_split[i][j]);
-            //         j++;
-            //     }
-            //     i++;
-            // }
+// while (test.input_splitted[i])
+// {
+//     ft_printf("test_splted[%d]: %s\n", i, test.input_splitted[i]);
+//     i++;
+// }
+// while (test.operate[i])
+// {
+//     ft_printf("operate[%d]: %s\n", i, test.operate[i]);
+//     i++;
+// }
+// i = 0;
+// i = 0;
+// while (test.split_the_split[i])
+// {
+//     int j = 0;
+//     while (test.split_the_split[i][j])
+//     {
+//         ft_printf("split_the_split[%d][%d]: %s\n", i, j, test.split_the_split[i][j]);
+//         j++;
+//     }
+//     i++;
+// }
