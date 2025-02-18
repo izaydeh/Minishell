@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-char	*collapse_whitespace(char *s)
+char	*delete_spaces(char *s)
 {
 	int		i;
 	int		j;
@@ -53,7 +53,7 @@ char	*collapse_whitespace(char *s)
 	return (new);
 }
 
-int	should_collapse(char *token)
+int	should_delete_sp(char *token)
 {
 	int		start;
 	int		end;
@@ -87,7 +87,7 @@ int	should_collapse(char *token)
 	return (1);
 }
 
-char	*process_single(char *s, t_exp *exp)
+char	*handle_signal_quote(char *s, t_exp *exp)
 {
 	s++;
 	while (*s && *s != '\'')
@@ -103,7 +103,7 @@ char	*process_single(char *s, t_exp *exp)
 	return (s);
 }
 
-char	*process_unquoted(char *s, t_shell *shell, t_exp *exp)
+char	*handle_un_quotetd(char *s, t_shell *shell, t_exp *exp)
 {
 	while (*s && *s != '\"' && *s != '\'')
 	{
@@ -121,7 +121,7 @@ char	*process_unquoted(char *s, t_shell *shell, t_exp *exp)
 	return (s);
 }
 
-char	*process_double(char *s, t_shell *shell, t_exp *exp)
+char	*handle_double_quote(char *s, t_shell *shell, t_exp *exp)
 {
 	s++;
 	while (*s && *s != '\"')
@@ -159,7 +159,7 @@ char	*process_double(char *s, t_shell *shell, t_exp *exp)
 	return (s);
 }
 
-char	*expand_token(char *token, t_shell *shell)
+char	*expander(char *token, t_shell *shell)
 {
 	t_exp		exp;
 	char		*s;
@@ -167,7 +167,7 @@ char	*expand_token(char *token, t_shell *shell)
 	char		*final;
     char        *original;
 
-	original = token;  // Save a pointer to the original token.
+	original = token; 
 	len = ft_strlen(token);
 	exp.res = malloc(len * 2 + 1);
 	if (exp.res == NULL)
@@ -180,25 +180,24 @@ char	*expand_token(char *token, t_shell *shell)
 	{
 		if (*s == '\'')
 		{
-			s = process_single(s, &exp);
+			s = handle_signal_quote(s, &exp);
 		}
 		else if (*s == '\"')
 		{
-			s = process_double(s, shell, &exp);
+			s = handle_double_quote(s, shell, &exp);
 		}
 		else
 		{
-			s = process_unquoted(s, shell, &exp);
+			s = handle_un_quotetd(s, shell, &exp);
 		}
 	}
 	*exp.out = '\0';
 	// Use the original token (or a copy) for determining collapse.
-	if (should_collapse(original))
+	if (should_delete_sp(original))
 	{
-		final = collapse_whitespace(exp.res);
+		final = delete_spaces(exp.res);
 		free(exp.res);
 		return (final);
 	}
 	return (exp.res);
 }
-

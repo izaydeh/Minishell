@@ -6,7 +6,7 @@
 /*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:46:28 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/17 22:01:11 by ikhalil          ###   ########.fr       */
+/*   Updated: 2025/02/18 10:34:29 by ikhalil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,32 +30,31 @@ int main(void)
             write(2, "exit\n", 5);
             break;
         }
+        if (ft_strcmp(test.input,"exit") == 0)
+            break;
         if (!test.input[0])
         {
             free(test.input);
             continue;
         }
         
-        /* First split the input by operators (ft_split does that) */
+        
         test.input_splitted = ft_split(test.input);
-        /* Then split the commands properly (echo gets special treatment) */
         test.split_the_split = split_commands(test.input_splitted);
 
-        /* ----- Variable Expansion Step on Each Token ----- */
         int i = 0;
         while (test.split_the_split[i])
         {
             int j = 0;
             while (test.split_the_split[i][j])
             {
-                char *expanded = expand_token(test.split_the_split[i][j], &test);
+                char *expanded = expander(test.split_the_split[i][j], &test);
                 free(test.split_the_split[i][j]);
                 test.split_the_split[i][j] = expanded;
                 j++;
             }
             i++;
         }
-
         command_count(&test);
         operate(&test);
         dir(&test);

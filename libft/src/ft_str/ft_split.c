@@ -17,17 +17,13 @@
 #include <string.h>
 #include <ctype.h>
 
-/* === Helper Functions ============================================== */
 
-// Return 1 if op is one of the redirection operators.
 int is_redirection_operator(const char *op) {
     return (strcmp(op, ">") == 0 || strcmp(op, ">>") == 0 ||
             strcmp(op, "<") == 0 || strcmp(op, "<<") == 0);
 }
 
-// Trim leading and trailing whitespace in str.
-// The function sets *start to point to the first non–space character,
-// and *end to point one–past the last non–space character.
+
 void trim(char *str, char **start, char **end) {
     while (isspace((unsigned char)*str))
         str++;
@@ -42,8 +38,6 @@ void trim(char *str, char **start, char **end) {
     *end = last + 1;
 }
 
-// Check if the string at s begins with an operator token.
-// If yes, set *op_len to its length (1 or 2) and return 1; otherwise return 0.
 int is_operator(const char *s, int *op_len) {
     if (s[0] == '>' && s[1] == '>') {
         *op_len = 2;
@@ -82,14 +76,14 @@ int tokenize_input(const char *input, char **tokens, int max_tokens, int *cmd_fl
             break;
 
         int op_len = 0;
-        if (is_operator(p, &op_len)) {
-            // Process an operator token.
+        if (is_operator(p, &op_len))
+        {
             char *op_token = malloc(op_len + 1);
             if (!op_token) { perror("malloc"); exit(EXIT_FAILURE); }
             strncpy(op_token, p, op_len);
             op_token[op_len] = '\0';
             tokens[token_count] = op_token;
-            cmd_flags[token_count] = -1;  // operator token
+            cmd_flags[token_count] = -1;
             token_count++;
 
           
@@ -103,8 +97,8 @@ int tokenize_input(const char *input, char **tokens, int max_tokens, int *cmd_fl
             else
                 prev_redir = 0;
             p += op_len;
-        } else {
-            // Process a non–operator chunk.
+        } else
+        {
             const char *start_ptr = p;
             while (*p != '\0') {
                 int len = 0;
@@ -118,7 +112,6 @@ int tokenize_input(const char *input, char **tokens, int max_tokens, int *cmd_fl
             strncpy(part, start_ptr, part_len);
             part[part_len] = '\0';
 
-            // Trim the chunk.
             char *trim_start, *trim_end;
             trim(part, &trim_start, &trim_end);
             int trimmed_len = trim_end - trim_start;
@@ -195,7 +188,6 @@ int tokenize_input(const char *input, char **tokens, int max_tokens, int *cmd_fl
     return token_count;
 }
 
-
 char **ft_split(const char *input) {
     const int max_tokens = 100;
     char **tokens = malloc((max_tokens + 1) * sizeof(char *));
@@ -208,7 +200,6 @@ char **ft_split(const char *input) {
     free(cmd_flags);
     return tokens;
 }
-
 
 static size_t ft_count_subwords(char *s)
 {
@@ -290,22 +281,17 @@ static char **ft_split_echo(char *s)
     if (!tokens)
         return NULL;
 
-    /* Skip any leading whitespace */
     while (*s == ' ')
         s++;
 
-    /* The first word should be "echo". We assume the input is well‐formed. */
     start = s;
     while (*s && *s != ' ')
         s++;
     tokens[0] = ft_substr(start, 0, s - start);
 
-    /* Skip spaces after the command word */
     while (*s == ' ')
         s++;
 
-    /* The rest of the string is kept as a single token.
-       (Even if it is empty, you may want to store an empty string.) */
     tokens[1] = ft_strdup(s);
     tokens[2] = NULL;
     return tokens;
@@ -326,8 +312,6 @@ char ***split_commands(char **s)
         return NULL;
     for (size_t i = 0; i < count; i++)
     {
-        /* Check if the command starts with "echo" 
-           (assuming s[i] is already trimmed of leading spaces) */
         if (!ft_strncmp(s[i], "echo", 4) && (s[i][4] == ' ' || s[i][4] == '\0'))
             final_split[i] = ft_split_echo(s[i]);
         else

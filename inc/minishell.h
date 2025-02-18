@@ -6,7 +6,7 @@
 /*   By: ikhalil <ikhalil@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:48:58 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/17 18:33:41 by ikhalil          ###   ########.fr       */
+/*   Updated: 2025/02/18 10:34:29 by ikhalil          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,13 +88,13 @@ int 	check_operator(char *filename, char *operate, int *in_fd, int *out_fd);
 int 	get_redirections(char *filename, char *operator, int *in_fd, int *out_fd);
 
 //expander
-char	*expand_token(char *token, t_shell *shell);
-char	*collapse_whitespace(char *s);
+char	*expander(char *token, t_shell *shell);
+char	*delete_spaces(char *s);
 char	*process_dollar(char *s, t_shell *shell, t_exp *exp);
-char	*process_single(char *s, t_exp *exp);
-char	*process_double(char *s, t_shell *shell, t_exp *exp);
-char	*process_unquoted(char *s, t_shell *shell, t_exp *exp);
-int		should_collapse(char *token);
+char	*handle_signal_quote(char *s, t_exp *exp);
+char	*handle_double_quote(char *s, t_shell *shell, t_exp *exp);
+char	*handle_un_quotetd(char *s, t_shell *shell, t_exp *exp);
+int		should_delete_sp(char *token);
 
 
 //free_and_exit
