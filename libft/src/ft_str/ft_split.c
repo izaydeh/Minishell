@@ -272,29 +272,39 @@ static char **ft_split_whitespace(char *s)
     return tokens;
 }
 
-static char **ft_split_echo(char *s)
+static char	**ft_split_echo(char *s)
 {
-    char **tokens;
-    const char *start;
-
-    tokens = malloc(3 * sizeof(char *));
-    if (!tokens)
-        return NULL;
-
-    while (*s == ' ')
-        s++;
-
-    start = s;
-    while (*s && *s != ' ')
-        s++;
-    tokens[0] = ft_substr(start, 0, s - start);
-
-    while (*s == ' ')
-        s++;
-
-    tokens[1] = ft_strdup(s);
-    tokens[2] = NULL;
-    return tokens;
+	char	**tokens;
+	const char	*start;
+	
+	tokens = malloc(4 * sizeof(char *));
+	if (!tokens)
+		return (NULL);
+	while (*s == ' ')
+		s++;
+	start = s;
+	while (*s && *s != ' ')
+		s++;
+	tokens[0] = strndup(start, s - start);
+	while (*s == ' ')
+		s++;
+	if (*s == '-')
+	{
+		start = s;
+		while (*s && *s != ' ')
+			s++;
+		tokens[1] = strndup(start, s - start);
+		while (*s == ' ')
+			s++;
+		tokens[2] = strdup(s);
+	}
+	else
+	{
+		tokens[1] = strdup(s);
+		tokens[2] = NULL;
+	}
+	tokens[3] = NULL;
+	return tokens;
 }
 
 
