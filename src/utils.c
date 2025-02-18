@@ -29,10 +29,10 @@ void operate(t_shell *test)
     int y = 0;
     test->operate_count = 0;
 
-    test->operate = malloc(sizeof(char **) * (count_max_commands(test) + 1));
+    test->operate = malloc(sizeof(char **) * (test->count_pipe + 2));
     if (!test->operate)
         return;
-    while (y < count_max_commands(test))
+    while (y < test->count_pipe + 1)
     {
         int x = 0;
         test->operate[y] = malloc(sizeof(char *) * (count_max_operate(test, y) + 1));
@@ -90,10 +90,10 @@ void dir(t_shell *test)
     int y = 0;
     test->dir_count = 0;
 
-    test->dir = malloc(sizeof(char **) * (count_max_commands(test) + 1));
+    test->dir = malloc(sizeof(char **) * (test->count_pipe + 2));
     if (!test->dir)
         return;
-    while (y < count_max_commands(test))
+    while (y < test->count_pipe + 1)
     {
         int x = 0;
         test->dir[y] = malloc(sizeof(char *) * (count_max_dir(test, y) + 1));
@@ -173,4 +173,15 @@ void command_count(t_shell *test)
     }
     test->command[j] = NULL;
     test->command_count = count;
+}
+//------------------------------------------------------------------------
+void count_pipe(t_shell *shell)
+{
+    int i = 0;
+    while (shell->input[i])
+    {
+        if (shell->input[i] == '|')
+            shell->count_pipe++;
+        i++;
+    }
 }
