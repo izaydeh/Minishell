@@ -6,7 +6,7 @@
 /*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:59:18 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/19 19:10:43 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/02/19 21:31:33 by sal-kawa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,6 +168,7 @@ void execute_pipeline(t_shell *shell)
         				ft_exit(shell, i);
 						free_shell(shell, shell->exit_status, 1, 0);
 					}
+					shell->exit_status = 0;
 					free_shell(shell, 0, 1, 0);
 				}
 				cmd_path = getpath(shell, argv);
