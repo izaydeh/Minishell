@@ -4,7 +4,7 @@ int is_builtin_funcion(t_shell *test, int i)
 {
     if (strcmp(test->command[i][0], "cd") == 0 || strcmp(test->command[i][0], "pwd") == 0 || strcmp(test->command[i][0], "env") == 0 ||
         strcmp(test->command[i][0], "echo") == 0 || strcmp(test->command[i][0], "unset") == 0 ||
-        strcmp(test->command[i][0], "export") == 0)
+        strcmp(test->command[i][0], "export") == 0 || strcmp(test->command[i][0], "exit") == 0)
         return 1;
     return 0;
 }

@@ -6,7 +6,7 @@
 /*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:48:58 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/18 18:19:46 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/02/19 20:54:20 by sal-kawa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,9 @@ void 	get_old_pwd(t_shell *shell);
 char	*get_env_value(t_shell *shell, char *var);
 void 	update_pwd(t_shell *shell);
 void 	re_shlvl(t_shell *shell);
+int 	is_numeric(const char *str);
+int 	check_argc_in_exit(char *argv);
+int		ft_exit(t_shell *shell, int i);
 
 //execve.c
 char	*getpath(t_shell *shell, char **test);
@@ -85,7 +88,8 @@ void    handle_signals(int  sig);
 void 	execute_pipeline(t_shell *shell);
 
 // check_dir.c
-int 	check_dir(t_shell *shell);
+int		check_dir(char *dir);
+int 	msg_operate_error(t_shell *msg);
 
 //redirection.c
 int 	handle_input_redirection(char *filename, int *in_fd);
@@ -105,7 +109,7 @@ int		should_delete_sp(char *token);
 
 
 //free_and_exit
-void 	free_shell(t_shell *shell, int i, int f);
+void 	free_shell(t_shell *shell, int i, int f, int child);
 void 	free_3d(char ****ar);
 void 	free_2d(char ***ar);
 

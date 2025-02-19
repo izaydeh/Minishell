@@ -6,7 +6,7 @@
 /*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:59:18 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/18 16:58:19 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/02/19 19:10:43 by sal-kawa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ void execute_pipeline(t_shell *shell)
 			else
 			{
 				write(2, "syntax error\n", 13);
-				free_shell(shell, 0, 0);
+				free_shell(shell, 0, 0, 1);
                 close(saved_stdin);
                 close(saved_stdout);
 				return ;
@@ -114,7 +114,7 @@ void execute_pipeline(t_shell *shell)
 				if (pipe(pipe_fd) == -1)
 				{
 					perror("pipe");
-					free_shell(shell, 1, 1);
+					free_shell(shell, 1, 1, 1);
 				}
 				pipe_created = 1;
 			}
@@ -122,7 +122,7 @@ void execute_pipeline(t_shell *shell)
 			if (pid < 0)
 			{
 				perror("fork");
-				free_shell(shell, 1, 1);
+				free_shell(shell, 1, 1, 1);
 			}
 			if (pid == 0)
 			{
@@ -132,7 +132,7 @@ void execute_pipeline(t_shell *shell)
 		                close(in_fd);
 		            if (out_fd != STDOUT_FILENO)
 		                close(out_fd);
-					free_shell(shell, 1, 1);
+					free_shell(shell, 1, 1, 0);
 		        }
 				if (in_fd != STDIN_FILENO)
 	            {
@@ -163,14 +163,19 @@ void execute_pipeline(t_shell *shell)
 						close(in_fd);
 					if (out_fd != STDOUT_FILENO)
 						close(out_fd);
-					free_shell(shell, 0, 1);
+					if (strcmp(shell->command[i][0], "exit") == 0)
+					{
+        				ft_exit(shell, i);
+						free_shell(shell, shell->exit_status, 1, 0);
+					}
+					free_shell(shell, 0, 1, 0);
 				}
 				cmd_path = getpath(shell, argv);
 				if (!cmd_path)
 				{
 					perror(argv[0]);
 					free_2d(&argv);
-					free_shell(shell, 127, 1);
+					free_shell(shell, 127, 1, 0);
 				}
 				argv[0] = cmd_path;
 				if (execve(cmd_path, argv, shell->env) == -1)
@@ -178,7 +183,7 @@ void execute_pipeline(t_shell *shell)
 					perror("execve");
 		            free(cmd_path);
 		            free_2d(&argv);
-					free_shell(shell, 126, 1);
+					free_shell(shell, 126, 1, 0);
 				}
 			}
 	        if (in_fd != STDIN_FILENO)
@@ -197,11 +202,16 @@ void execute_pipeline(t_shell *shell)
 			i++;
 		}
 	}
-	while (wait(&wstatus) > 0)
+	int cpid = 1;
+	while (cpid > 0)
 	{
-		if (WIFEXITED(wstatus))
-			shell->exit_status = WEXITSTATUS(wstatus);
-		else if (WIFSIGNALED(wstatus))
-			shell->exit_status = 128 + WTERMSIG(wstatus);
+		cpid = wait(&wstatus);
+		if (cpid == pid)
+		{
+			if (WIFEXITED(wstatus))
+				shell->exit_status = WEXITSTATUS(wstatus);
+			else
+				shell->exit_status = 128 + WTERMSIG(wstatus);
+		}
 	}
 }

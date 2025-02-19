@@ -5,6 +5,16 @@ int handle_input_redirection(char *filename, int *in_fd)
 {
     if (*in_fd != STDIN_FILENO)
         close(*in_fd);
+    if (check_dir(filename) == 0) 
+    {
+        printf("error: %s does not exist\n", filename);
+        return 0;
+    }
+    if (check_dir(filename) != 2)
+    {
+        printf("error: %s is not a valid file for redirection\n", filename);
+        return 0;
+    }
     *in_fd = open(filename, O_RDONLY);
     if (*in_fd < 0) 
     {

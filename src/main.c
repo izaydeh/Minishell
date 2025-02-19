@@ -6,7 +6,7 @@
 /*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:46:28 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/18 18:25:49 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/02/19 21:21:16 by sal-kawa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,18 +24,16 @@ int main(int argc,char **argv)
     re_shlvl(&test);
     test.name_program = argv[0];
     while (1)
-    {   
+    {
         test.input = readline("welcome to (shell)> ");
         if (!test.input)
         {
             write(2, "exit\n", 5);
             break;
         }
-        if (ft_strcmp(test.input,"exit") == 0)
-            break;
         if (!test.input[0])
         {
-            free_shell(&test, 0, 0);
+            free_shell(&test, 0, 0, 1);
             continue;
         }
         test.input_splitted = ft_split(test.input);
@@ -57,20 +55,29 @@ int main(int argc,char **argv)
         count_pipe(&test);
         operate(&test);
         dir(&test);
-        if (test.command_count == 1 && test.count_pipe == 0)
+        if (test.command_count == 0 && test.count_pipe == 0)
         {
-            if (check_dir(&test))
-            {
-                printf("%s is a directory.\n", test.input_splitted[0]);
-                continue;
-            }
+            if (msg_operate_error(&test))
+                test.exit_status = 2;
         }
-        if (test.command && test.command[0] && 
+        else if (test.command_count == 1 && test.count_pipe == 0 &&
+                test.input_splitted[0][strlen(test.input_splitted[0]) - 1] == '/')
+        {
+            if (check_dir(test.input_splitted[0]) == 1)
+                printf("%s is a directory.\n", test.input_splitted[0]);
+        }
+        else if (test.command && test.command[0] && 
             strcmp(test.command[0][0], "cd") == 0 && test.command_count == 1)
             ft_cd(&test, 0);
         else if (test.command && test.command[0] && 
                  strcmp(test.command[0][0], "export") == 0)
             ft_export(&test, test.command[0]);
+        else if (test.command && test.command[0] && 
+                 strcmp(test.command[0][0], "exit") == 0)
+            {
+                if (ft_exit(&test, 0))
+                    exit(test.exit_status);
+            }
         else if (test.command && test.command[0] && 
                  strcmp(test.command[0][0], "unset") == 0)
             ft_unset(&test, test.command[0]);
@@ -78,9 +85,9 @@ int main(int argc,char **argv)
             execute_pipeline(&test);
 
         add_history(test.input);
-        free_shell(&test, 0, 0);
+        free_shell(&test, 0, 0, 1);
     }
-    free_shell(&test, 0, 1);
+    free_shell(&test, 0, 1, 1);
     return (0);
 }
 

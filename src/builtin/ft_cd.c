@@ -17,7 +17,14 @@ void ft_cd(t_shell *shell, int i)
         printf("%s\n", target);
     }
     else
+    {
         target = shell->command[i][1];
+        if (check_dir(target) != 1)
+        {
+            write (2, "the argument not a directory \n", 31);
+            return ;
+        }
+    }
     get_old_pwd(shell);
     if (chdir(target) != 0)
     {

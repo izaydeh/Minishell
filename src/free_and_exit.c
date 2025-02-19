@@ -30,32 +30,35 @@ void free_3d(char ****ar)
     *ar = NULL;
 }
 
-void free_shell(t_shell *shell, int i, int f)
+void free_shell(t_shell *shell, int i, int f, int child)
 {
-    if (shell->input)
+    if (child)
     {
-        free(shell->input);
-        if (shell->input_splitted)
+        if (shell->input)
         {
-            free_3d(&shell->split_the_split);
-            free_2d(&shell->input_splitted);
-            int x = 0;
-            while (shell->operate[x++])
-                free(shell->operate[x]);
-            x = 0;
-            while (shell->dir[x++])
-                free(shell->dir[x]);
-            free(shell->command);
-            shell->input = NULL;
-            shell->input_splitted = NULL;
-            shell->split_the_split = NULL;
-            shell->command = NULL;
-            shell->dir = NULL;
-            shell->operate = NULL;
-            shell->command_count = 0;
-            shell->dir_count = 0;
-            shell->operate_count = 0;
-            shell->count_pipe = 0;
+            free(shell->input);
+            if (shell->input_splitted)
+            {
+                free_3d(&shell->split_the_split);
+                free_2d(&shell->input_splitted);
+                int x = 0;
+                while (shell->operate[x++])
+                    free(shell->operate[x]);
+                x = 0;
+                while (shell->dir[x++])
+                    free(shell->dir[x]);
+                free(shell->command);
+                shell->input = NULL;
+                shell->input_splitted = NULL;
+                shell->split_the_split = NULL;
+                shell->command = NULL;
+                shell->dir = NULL;
+                shell->operate = NULL;
+                shell->command_count = 0;
+                shell->dir_count = 0;
+                shell->operate_count = 0;
+                shell->count_pipe = 0;
+            }
         }
     }
     if(f)
