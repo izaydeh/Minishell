@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:48:58 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/19 20:54:20 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/02/21 19:36:25 by shoaib           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,13 +36,18 @@ typedef struct s_shell
 	char	***operate;
 	char	**env;
 	char	*old_pwd;
+	char	*name_program;
 	int		command_count;
 	int 	exit_status;
 	int		operate_count;
 	int		dir_count;
 	int		count_pipe;
-	char	*name_program;
+	int		flag_echo;
+	int 	flag_here;
 }			t_shell;
+
+
+extern t_shell *g_shell;
 
 // struct for expander
 typedef struct s_exp
@@ -78,6 +83,16 @@ int 	is_numeric(const char *str);
 int 	check_argc_in_exit(char *argv);
 int		ft_exit(t_shell *shell, int i);
 
+//split_command.c
+void	trim(char *str, char **start, char **end);
+int		is_redirection_operator(const char *op);
+int 	is_operator(const char *s, int *op_len);
+int		tokenize_input(const char *input, char **tokens, int max_tokens, int *cmd_flags);
+char	**ft_split(const char *input);
+size_t	 ft_count_subwords(char *s);
+char 	**ft_split_whitespace(char *s);
+char	**ft_split_echo(char *s);
+char 	***split_commands(t_shell *test, char **s);
 //execve.c
 char	*getpath(t_shell *shell, char **test);
 

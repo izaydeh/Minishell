@@ -58,6 +58,7 @@ void free_shell(t_shell *shell, int i, int f, int child)
                 shell->dir_count = 0;
                 shell->operate_count = 0;
                 shell->count_pipe = 0;
+                shell->flag_echo = 0;
             }
         }
     }

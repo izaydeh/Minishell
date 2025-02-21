@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   handle_signals.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 17:24:15 by ikhalil           #+#    #+#             */
-/*   Updated: 2025/02/19 16:54:26 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/02/21 19:36:07 by shoaib           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,9 @@ void    handle_signals(int  sig)
 {
     if (sig == SIGINT)
     {
+        if (g_shell)
+            g_shell->exit_status = 130;
+            
         printf("\n");  // Move to a new line
         rl_on_new_line();
         rl_replace_line("", 0);
@@ -23,6 +26,8 @@ void    handle_signals(int  sig)
     }
     else if (sig == SIGQUIT)
     {
+        if (g_shell)
+            g_shell->exit_status = 0;
         // Do Nothing :)
     }
 }

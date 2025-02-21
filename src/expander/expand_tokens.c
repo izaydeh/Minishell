@@ -163,12 +163,12 @@ char	*expander(char *token, t_shell *shell)
 {
 	t_exp		exp;
 	char		*s;
-	size_t		len;
+	// size_t		len;
 	char		*final;
     char        *original;
 
 	original = token; 
-	len = ft_strlen(token);
+	// len = ft_strlen(token);
 	exp.res = malloc(8192);
 	if (exp.res == NULL)
 	{

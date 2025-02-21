@@ -6,7 +6,7 @@
 /*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/05 15:22:13 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/06 20:52:52 by shoaib           ###   ########.fr       */
+/*   Updated: 2025/02/21 16:06:16 by shoaib           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,6 @@
 # include <stddef.h>
 # include <stdlib.h>
 # include <unistd.h>
-#include <ctype.h>
-#include <string.h>
 
 typedef struct s_list
 {
@@ -58,7 +56,7 @@ void	ft_putchar_fd(char c, int fd);
 void	ft_putstr_fd(char *s, int fd);
 void	ft_putendl_fd(char *s, int fd);
 void	ft_putnbr_fd(int n, int fd);
-char	**ft_split(const char *s);
+char	**ft_split_libft(char const *s, char c);
 t_list	*ft_lstnew(void *content);
 void	ft_lstdelone(t_list *lst, void (*del)(void *));
 void	ft_lstiter(t_list *lst, void (*f)(void *));
@@ -68,8 +66,5 @@ t_list	*ft_lstlast(t_list *lst);
 void	ft_lstadd_front(t_list **lst, t_list *new);
 int		ft_lstsize(t_list *lst);
 t_list	*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *));
-char ***split_commands(char **s);
-int		ft_strcmp(const char *s1, const char *s2);
-int ft_is_special_char(const char *s, size_t *length);
 
 #endif
