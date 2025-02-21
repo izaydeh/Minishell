@@ -44,7 +44,6 @@ int is_operator(const char *s, int *op_len)
     return 0;
 }
 
-
 int tokenize_input(const char *input, char **tokens, int max_tokens, int *cmd_flags)
 {
     int token_count = 0;
@@ -53,8 +52,8 @@ int tokenize_input(const char *input, char **tokens, int max_tokens, int *cmd_fl
     const char *p = input;
     int prev_redir = 0;        
 
-    while (*p != '\0' && token_count < max_tokens) {
-       
+    while (*p != '\0' && token_count < max_tokens)
+    {
         while (*p && isspace((unsigned char)*p))
             p++;
         if (*p == '\0')
@@ -71,8 +70,8 @@ int tokenize_input(const char *input, char **tokens, int max_tokens, int *cmd_fl
             cmd_flags[token_count] = -1;
             token_count++;
 
-          
-            if (strcmp(op_token, "|") == 0) {
+            if (strcmp(op_token, "|") == 0)
+            {
                 has_command = 0;
                 last_cmd_index = -1;
             }
@@ -82,12 +81,35 @@ int tokenize_input(const char *input, char **tokens, int max_tokens, int *cmd_fl
             else
                 prev_redir = 0;
             p += op_len;
-        } else
+        }
+        else
         {
+            /* 
+             * Use a quote-aware loop so that any operator-like characters inside
+             * quotes are ignored.
+             */
             const char *start_ptr = p;
-            while (*p != '\0') {
-                int len = 0;
-                if (is_operator(p, &len))
+            int in_quote = 0;
+            char quote_char = '\0';
+            while (*p != '\0')
+            {
+                if (*p == '\'' || *p == '"')
+                {
+                    if (!in_quote)
+                    {
+                        in_quote = 1;
+                        quote_char = *p;
+                    }
+                    else if (quote_char == *p)
+                    {
+                        in_quote = 0;
+                        quote_char = '\0';
+                    }
+                    /* Include the quote characters in the token */
+                    p++;
+                    continue;
+                }
+                if (!in_quote && is_operator(p, &op_len))
                     break;
                 p++;
             }
@@ -100,64 +122,83 @@ int tokenize_input(const char *input, char **tokens, int max_tokens, int *cmd_fl
             char *trim_start, *trim_end;
             trim(part, &trim_start, &trim_end);
             int trimmed_len = trim_end - trim_start;
-            if (trimmed_len <= 0) {
+            if (trimmed_len <= 0)
+            {
                 free(part);
                 prev_redir = 0;
                 continue;
             }
 
-            if (prev_redir) {
-                
+            if (prev_redir)
+            {
                 char *space = NULL;
-                for (int i = 0; i < trimmed_len; i++) {
-                    if (isspace((unsigned char)trim_start[i])) {
+                for (int i = 0; i < trimmed_len; i++)
+                {
+                    if (isspace((unsigned char)trim_start[i]))
+                    {
                         space = trim_start + i;
                         break;
                     }
                 }
-                if (space) {
+                if (space)
+                {
                     int word_len = space - trim_start;
                     char *operand = malloc(word_len + 1);
                     if (!operand) { perror("malloc"); exit(EXIT_FAILURE); }
                     strncpy(operand, trim_start, word_len);
                     operand[word_len] = '\0';
-                    tokens[token_count++] = operand;
-                    cmd_flags[token_count - 1] = 0;  
+                    /* --- Added: Remove quotes from redirection operand --- */
+                    char *expanded_operand = expander(operand, g_shell);
+                    free(operand);
+                    tokens[token_count++] = expanded_operand;
+                    cmd_flags[token_count - 1] = 0;
                     char *rem = space;
                     while (rem < trim_end && isspace((unsigned char)*rem))
                         rem++;
-                    if (rem < trim_end) {
+                    if (rem < trim_end)
+                    {
                         int extra_len = trim_end - rem;
-                        if (has_command && last_cmd_index != -1 && cmd_flags[last_cmd_index] == 1) {
+                        if (has_command && last_cmd_index != -1 && cmd_flags[last_cmd_index] == 1)
+                        {
                             size_t old_len = strlen(tokens[last_cmd_index]);
                             char *merged = malloc(old_len + 1 + extra_len + 1);
                             if (!merged) { perror("malloc"); exit(EXIT_FAILURE); }
                             sprintf(merged, "%s %.*s", tokens[last_cmd_index], extra_len, rem);
                             free(tokens[last_cmd_index]);
                             tokens[last_cmd_index] = merged;
-                        } else {
+                        }
+                        else
+                        {
                             char *extra = malloc(extra_len + 1);
                             if (!extra) { perror("malloc"); exit(EXIT_FAILURE); }
                             strncpy(extra, rem, extra_len);
                             extra[extra_len] = '\0';
-                            tokens[token_count++] = extra;
+                            /* --- Also remove quotes from the extra part --- */
+                            char *expanded_extra = expander(extra, g_shell);
+                            free(extra);
+                            tokens[token_count++] = expanded_extra;
                             cmd_flags[token_count - 1] = 0;
                             has_command = 1;
                             last_cmd_index = token_count - 1;
                         }
                     }
-                } else {
-                 
+                }
+                else
+                {
                     char *operand = malloc(trimmed_len + 1);
                     if (!operand) { perror("malloc"); exit(EXIT_FAILURE); }
                     strncpy(operand, trim_start, trimmed_len);
                     operand[trimmed_len] = '\0';
-                    tokens[token_count++] = operand;
+                    /* --- Added: Remove quotes from redirection operand --- */
+                    char *expanded_operand = expander(operand, g_shell);
+                    free(operand);
+                    tokens[token_count++] = expanded_operand;
                     cmd_flags[token_count - 1] = 0;
                 }
                 prev_redir = 0;
-            } else {
-            
+            }
+            else
+            {
                 char *token_str = malloc(trimmed_len + 1);
                 if (!token_str) { perror("malloc"); exit(EXIT_FAILURE); }
                 strncpy(token_str, trim_start, trimmed_len);
@@ -172,6 +213,7 @@ int tokenize_input(const char *input, char **tokens, int max_tokens, int *cmd_fl
     }
     return token_count;
 }
+
 
 char **ft_split(const char *input) {
     const int max_tokens = 100;
