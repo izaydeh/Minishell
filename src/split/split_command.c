@@ -1,5 +1,4 @@
 #include "minishell.h"
-#include <ctype.h>
 
 int is_redirection_operator(const char *op)
 {
