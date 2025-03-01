@@ -6,7 +6,7 @@
 /*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:46:28 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/03/01 06:20:30 by shoaib           ###   ########.fr       */
+/*   Updated: 2025/03/01 06:27:56 by shoaib           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,7 +139,7 @@ int	main(int argc, char **argv)
 								(test.input[i + 1] == '<' && test.input[i] == '>'))
 							{
 								printf("%s: syntax error near unexpected token '%c%c'\n", test.name_program, test.input[i], test.input[i + 1]);
-								test.exit_status = 2;
+								test.exit_status = 22;
 								break;
 							}
 						}
@@ -147,15 +147,18 @@ int	main(int argc, char **argv)
 								 (test.input[i + 1] == '<' && test.input[i] == '>'))
 						{
 							printf("%s: syntax error near unexpected token '%c%c'\n", test.name_program, test.input[i], test.input[i + 1]);
-							test.exit_status = 2;
+							test.exit_status = 22;
 							break;
 						}
 					}
 				}
 				i++;
 			}
-			if (test.exit_status == 2)
+			if (test.exit_status == 22)
+			{
+				test.exit_status = 2;
 				continue ;
+			}
 		}
 		run_command(&test);
 		add_history(test.input);
