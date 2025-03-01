@@ -12,31 +12,41 @@
 
 #include "minishell.h"
 
+static void	remove_extra_spaces_helper(char *s, char *new, int *i, int *j)
+{
+	while (s[*i])
+	{
+		if (s[*i] != ' ')
+			new[(*j)++] = s[(*i)++];
+		else
+		{
+			new[(*j)++] = ' ';
+			while (s[*i] == ' ')
+				(*i)++;
+		}
+	}
+}
+
 char	*remove_extra_spaces(char *s, char *new)
 {
 	int	i;
 	int	j;
+	int	len;
+	int	has_leading;
+	int	has_trailing;
 
 	i = 0;
 	j = 0;
-	while (s[i])
-	{
-		while (s[i] == ' ')
-			i++;
-		if (s[i] == '\0')
-			break ;
-		if (j > 0)
-		{
-			new[j] = ' ';
-			j++;
-		}
-		while (s[i] && s[i] != ' ')
-		{
-			new[j] = s[i];
-			j++;
-			i++;
-		}
-	}
+	len = ft_strlen(s);
+	has_leading = (len > 0 && s[0] == ' ');
+	has_trailing = (len > 0 && s[len - 1] == ' ');
+	if (has_leading)
+		new[j++] = ' ';
+	while (s[i] == ' ')
+		i++;
+	remove_extra_spaces_helper(s, new, &i, &j);
+	if (has_trailing && (j == 0 || new[j - 1] != ' '))
+		new[j++] = ' ';
 	new[j] = '\0';
 	return (new);
 }

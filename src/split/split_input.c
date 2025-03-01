@@ -62,6 +62,62 @@ char	***allocate_split(char **s, size_t *count)
 	return (final_split);
 }
 
+static char	**ft_split_export(char *s)
+{
+	char		**tokens;
+	char		**args;
+	char		*cmd;
+	int			i;
+	int			count;
+	const char	*start;
+
+	while (*s && *s == ' ')
+		s++;
+	start = s;
+	while (*s && !isspace((unsigned char)*s))
+		s++;
+	cmd = strndup(start, s - start);
+	while (*s && *s == ' ')
+		s++;
+	if (*s)
+		args = ft_split_whitespace(s);
+	else
+		args = NULL;
+	if (args)
+	{
+		count = 0;
+		while (args[count])
+			count++;
+		tokens = malloc(sizeof(char *) * (count + 2));
+		if (!tokens)
+		{
+			perror("malloc");
+			exit(EXIT_FAILURE);
+		}
+		tokens[0] = cmd;
+		i = 0;
+		while (args[i])
+		{
+			tokens[i + 1] = args[i];
+			i++;
+		}
+		tokens[i + 1] = NULL;
+		free(args);
+	}
+	else
+	{
+		tokens = malloc(sizeof(char *) * 2);
+		if (!tokens)
+		{
+			perror("malloc");
+			exit(EXIT_FAILURE);
+		}
+		tokens[0] = cmd;
+		tokens[1] = NULL;
+	}
+	return (tokens);
+}
+
 char	***split_commands(char **s)
 {
 	char	***final_split;
@@ -74,8 +130,12 @@ char	***split_commands(char **s)
 	i = 0;
 	while (i < count)
 	{
-		if (!ft_strncmp(s[i], "echo", 4) && (s[i][4] == ' ' || s[i][4] == '\0'))
+		if (!ft_strncmp(s[i], "echo", 4) &&
+			(s[i][4] == ' ' || s[i][4] == '\0'))
 			final_split[i] = ft_split_echo(s[i]);
+		else if (!ft_strncmp(s[i], "export", 6) &&
+			(s[i][6] == ' ' || s[i][6] == '\0'))
+			final_split[i] = ft_split_export(s[i]);
 		else
 			final_split[i] = ft_split_whitespace(s[i]);
 		i++;

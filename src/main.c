@@ -102,19 +102,25 @@ int	main(int argc, char **argv)
 		}
 		test.input_splitted = ft_split(test.input, &test);
 		test.split_the_split = split_commands(test.input_splitted);
-		i = 0;
-		while (test.split_the_split[i])
+	i = 0;
+	while (test.split_the_split[i])
+	{
+		/* If the command is export, skip expansion to preserve spaces */
+		if (ft_strcmp(test.split_the_split[i][0], "export") == 0)
 		{
-			j = 0;
-			while (test.split_the_split[i][j])
-			{
-				expanded = expander(test.split_the_split[i][j], &test);
-				free(test.split_the_split[i][j]);
-				test.split_the_split[i][j] = expanded;
-				j++;
-			}
 			i++;
+			continue;
 		}
+		j = 0;
+		while (test.split_the_split[i][j])
+		{
+			expanded = expander(test.split_the_split[i][j], &test);
+			free(test.split_the_split[i][j]);
+			test.split_the_split[i][j] = expanded;
+			j++;
+		}
+		i++;
+	}
 		count_pipe(&test);
 		command_count(&test);
 		operate(&test);

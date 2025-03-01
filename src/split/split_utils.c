@@ -34,52 +34,86 @@ size_t	ft_count_subwords(char *s)
 	return (count);
 }
 
-char	*extract_token_whitespace(char **s)
+char *extract_token_with_quotes(char **s)
 {
-	const char	*start;
-	char		*token;
+    size_t	len;
+	size_t	pos;
+	char	*token;
+	char	quote;
 
-	while (**s == ' ')
-		(*s)++;
-	if (**s == '"')
-	{
-		start = ++(*s);
-		while (**s && **s != '"')
-			(*s)++;
-		token = ft_substr(start, 0, *s - start);
-		if (**s == '"')
-			(*s)++;
-	}
-	else
-	{
-		start = *s;
-		while (**s && **s != ' ')
-			(*s)++;
-		token = ft_substr(start, 0, *s - start);
-	}
-	return (token);
+    len = strlen(*s);
+    token = malloc(len + 1);
+    if (!token) { perror("malloc"); exit(EXIT_FAILURE); }
+    pos = 0;
+    while (**s && !isspace((unsigned char)**s))
+    {
+        if (**s == '\'' || **s == '"')
+        {
+            quote = **s;
+            (*s)++;
+            while (**s && **s != quote)
+            {
+                token[pos++] = **s;
+                (*s)++;
+            }
+            if (**s == quote) (*s)++;
+        }
+        else { token[pos++] = **s; (*s)++; }
+    }
+    token[pos] = '\0';
+    return (token);
 }
 
-char	**ft_split_whitespace(char *s)
+char **ft_split_whitespace(char *s)
 {
-	char	**tokens;
-	size_t	j;
+    char **tokens;
+    size_t count = 0;
+    size_t i = 0;
+    char *str = s;
+    char *token;
 
-	if (!s)
-		return (NULL);
-	tokens = malloc((ft_count_subwords(s) + 1) * sizeof(char *));
-	if (!tokens)
-		return (NULL);
-	j = 0;
-	while (*s)
-	{
-		while (*s == ' ')
-			s++;
-		if (*s)
-			tokens[j++] = extract_token_whitespace(&s);
-	}
-	tokens[j] = NULL;
-	return (tokens);
+    // First pass: Count the tokens.
+    while (*str)
+    {
+        while (*str && isspace((unsigned char)*str))
+            str++;
+        if (*str)
+        {
+            count++;
+            while (*str && !isspace((unsigned char)*str))
+            {
+                if (*str == '\'' || *str == '"')
+                {
+                    char quote = *str;
+                    str++;  // Skip the opening quote.
+                    while (*str && *str != quote)
+                        str++;
+                    if (*str == quote)
+                        str++;  // Skip the closing quote.
+                }
+                else
+                    str++;
+            }
+        }
+    }
+    tokens = malloc((count + 1) * sizeof(char *));
+    if (!tokens)
+    {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    while (*s)
+    {
+        while (*s && isspace((unsigned char)*s))
+            s++;
+        if (*s)
+        {
+            token = extract_token_with_quotes(&s);
+            tokens[i++] = token;
+        }
+    }
+    tokens[i] = NULL;
+    return tokens;
 }
 
 char	**parse_echo_arguments(char *s, char **tokens)

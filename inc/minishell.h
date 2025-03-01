@@ -104,7 +104,7 @@ int	tokenize_input(t_shell *g_shell, const char *input, char **tokens, int max_t
 char	**ft_split_echo(char *s);
 char	**parse_echo_arguments(char *s, char **tokens);
 char	**ft_split_whitespace(char *s);
-char	*extract_token_whitespace(char **s);
+char	*extract_token_with_quotes(char **s);
 size_t	ft_count_subwords(char *s);
 
 //split_input.c
