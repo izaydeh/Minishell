@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipe.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
+/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:59:18 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/21 19:43:50 by shoaib           ###   ########.fr       */
+/*   Updated: 2025/02/27 20:09:36 by sal-kawa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ void execute_pipeline(t_shell *shell)
     a = 0;
 	i = 0;
 	prev_fd = -1;
+	pid = 0;
 	if (!shell || !shell->split_the_split )
 	{
 		perror("Error: Invalid shell structure or environment");
@@ -36,6 +37,8 @@ void execute_pipeline(t_shell *shell)
 	}
 	if (shell->command_count < 1)
 	{
+		in_fd = STDIN_FILENO;
+	        out_fd = STDOUT_FILENO;
 		int saved_stdin = dup(STDIN_FILENO);
         int saved_stdout = dup(STDOUT_FILENO);
 		if (shell->count_pipe)
@@ -63,7 +66,7 @@ void execute_pipeline(t_shell *shell)
 			else
 			{
 				write(2, "syntax error\n", 13);
-				free_shell(shell, 0, 0, 1);
+				free_shell(shell, 0, 1);
                 close(saved_stdin);
                 close(saved_stdout);
 				return ;
@@ -89,7 +92,7 @@ void execute_pipeline(t_shell *shell)
 	}
 	else 
 	{
-		while (i < shell->command_count)
+		while (i == 0 || i <= shell->count_pipe)
 		{
 	        in_fd = STDIN_FILENO;
 	        out_fd = STDOUT_FILENO;
@@ -98,7 +101,7 @@ void execute_pipeline(t_shell *shell)
 	        int redir_success = 1;
 	        if (i > 0 && prev_fd != -1)
 	            in_fd = prev_fd;
-			if (a < shell->command_count)
+			if (a <= shell->count_pipe)
 	        {
 	            int b = 0;
 	            while (shell->dir[a][b])
@@ -109,12 +112,13 @@ void execute_pipeline(t_shell *shell)
 	            }
 	        }
 	        a++;
-			if (i < shell->command_count - 1)
+			if (i < shell->count_pipe)
 			{
 				if (pipe(pipe_fd) == -1)
 				{
 					perror("pipe");
-					free_shell(shell, 1, 1, 1);
+					free_shell(shell, 1, 1);
+					e_exit(shell, 1);
 				}
 				pipe_created = 1;
 			}
@@ -122,17 +126,20 @@ void execute_pipeline(t_shell *shell)
 			if (pid < 0)
 			{
 				perror("fork");
-				free_shell(shell, 1, 1, 1);
+				free_shell(shell, 1, 1);
+				e_exit(shell, 1);
 			}
 			if (pid == 0)
 			{
+				signal(SIGQUIT, SIG_DFL);
 		        if (!redir_success)
 		        {
 		            if (in_fd != STDIN_FILENO)
 		                close(in_fd);
 		            if (out_fd != STDOUT_FILENO)
 		                close(out_fd);
-					free_shell(shell, 1, 1, 0);
+					free_shell(shell, 1, 0);
+					e_exit(shell, 1);
 		        }
 				if (in_fd != STDIN_FILENO)
 	            {
@@ -166,25 +173,27 @@ void execute_pipeline(t_shell *shell)
 					if (strcmp(shell->command[i][0], "exit") == 0)
 					{
         				ft_exit(shell, i);
-						free_shell(shell, shell->exit_status, 1, 0);
+						free_shell(shell, 1, 0);
+						e_exit(shell, shell->exit_status);
 					}
 					shell->exit_status = 0;
-					free_shell(shell, 0, 1, 0);
+					free_shell(shell, 1, 0);
+					e_exit(shell, 0);
 				}
 				cmd_path = getpath(shell, argv);
 				if (!cmd_path)
 				{
 					perror(argv[0]);
-					free_2d(&argv);
-					free_shell(shell, 127, 1, 0);
+					free_shell(shell, 1, 0);
+					e_exit(shell, 127);
 				}
 				argv[0] = cmd_path;
 				if (execve(cmd_path, argv, shell->env) == -1)
 	            {
 					perror("execve");
 		            free(cmd_path);
-		            free_2d(&argv);
-					free_shell(shell, 126, 1, 0);
+					free_shell(shell, 1, 0);
+					e_exit(shell, 126);
 				}
 			}
 	        if (in_fd != STDIN_FILENO)

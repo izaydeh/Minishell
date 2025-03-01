@@ -1,6 +1,33 @@
 NAME =minishell
 
-SRCS =src/main.c src/free_and_exit.c src/execute/get_path.c src/split/split_command.c src/execute/check_dir.c src/builtin/ft_exit.c src/builtin/ft_cd.c src/builtin/ft_echo.c src/builtin/env/old_pwd.c src/builtin/env/shell_level.c src/builtin/env/new_pwd.c src/builtin/env/ft_env.c src/builtin/ft_export.c src/builtin/ft_unset.c src/builtin/ft_pwd.c src/builtin/is_builtin_function.c src/execute/pipe.c src/signals/handle_signals.c src/execute/redirection.c src/utils.c src/expander/expand_tokens.c src/expander/process_dollar_sign.c
+SRCS = src/main.c \
+       src/allocate/dir.c \
+       src/allocate/operator.c \
+       src/allocate/command.c \
+       src/free_and_exit.c \
+       src/signals/handle_signals.c \
+       src/split/split_utils.c \
+       src/split/split_input.c \
+       src/split/check_operator.c \
+       src/split/split_command.c \
+       src/builtin/ft_exit.c \
+       src/builtin/ft_cd.c \
+       src/builtin/ft_echo.c \
+       src/builtin/env/old_pwd.c \
+       src/builtin/env/shell_level.c \
+       src/builtin/env/new_pwd.c \
+       src/builtin/env/ft_env.c \
+       src/builtin/ft_export.c \
+       src/builtin/ft_unset.c \
+       src/builtin/ft_pwd.c \
+       src/builtin/is_builtin_function.c \
+       src/execute/pipe.c \
+       src/execute/get_path.c \
+       src/execute/check_dir.c \
+       src/execute/redirection.c \
+       src/expander/expand_tokens.c \
+       src/expander/expand_tokens_two.c \
+       src/expander/process_dollar_sign.c
 
 OBJ =$(SRCS:.c=.o)
 LIBFT_PATH=libft
@@ -10,7 +37,6 @@ LINKER =-L./libft -lft -lreadline
 INC =-I./inc -I./libft/inc
 
 all: LIB $(NAME)
-
 
 LIB:
 	make -C $(LIBFT_PATH)

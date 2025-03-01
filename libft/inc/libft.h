@@ -6,14 +6,14 @@
 /*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/05 15:22:13 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/21 19:52:05 by shoaib           ###   ########.fr       */
+/*   Updated: 2025/02/24 19:46:56 by shoaib           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LIBFT_H
 # define LIBFT_H
 
-# include<stdio.h>
+# include <stdio.h>
 # include <stddef.h>
 # include <stdlib.h>
 # include <unistd.h>

@@ -7,8 +7,9 @@
  */
 static int	is_valid_identifier(const char *str)
 {
-	int i = 0;
+	int	i;
 
+	i = 0;
 	if (!str)
 		return (0);
 	if (!(ft_isalpha(str[0]) || str[0] == '_'))
@@ -28,9 +29,10 @@ static int	is_valid_identifier(const char *str)
  */
 static char	*get_name(const char *str)
 {
-	int		i = 0;
+	int		i;
 	char	*name;
 
+	i = 0;
 	while (str[i] && str[i] != '=')
 		i++;
 	name = malloc(i + 1);
@@ -61,8 +63,7 @@ void	ft_unset(t_shell *test, char **args)
 
 	/* If no variable names are provided, nothing to do */
 	if (!args[1])
-		return;
-
+		return ;
 	/* Process each variable name provided after the command "unset" */
 	for (i = 1; args[i] != NULL; i++)
 	{
@@ -72,7 +73,7 @@ void	ft_unset(t_shell *test, char **args)
 			write(2, "unset: `", 8);
 			write(2, args[i], ft_strlen(args[i]));
 			write(2, "': not a valid identifier\n", 27);
-			continue;
+			continue ;
 		}
 		j = 0;
 		/* Loop through the environment array */
@@ -81,7 +82,7 @@ void	ft_unset(t_shell *test, char **args)
 			/* Extract the name from the current environment string */
 			env_name = get_name(test->env[j]);
 			if (!env_name)
-				break;
+				break ;
 			/* Compare the environment variable name with the argument */
 			if (ft_strcmp(env_name, args[i]) == 0)
 			{
@@ -98,10 +99,10 @@ void	ft_unset(t_shell *test, char **args)
 				/* Set the last pointer to NULL */
 				test->env[k] = NULL;
 				/*
-				 * Do not increment j here as a new entry now resides at index j.
-				 * (In most cases there is only one match per variable name.)
-				 */
-				continue;
+					* Do not increment j here as a new entry now resides at index j.
+					* (In most cases there is only one match per variable name.)
+					*/
+				continue ;
 			}
 			free(env_name);
 			j++;

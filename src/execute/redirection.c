@@ -1,5 +1,6 @@
 #include "minishell.h"
 
+extern int g_shell_signal;
 
 int handle_input_redirection(char *filename, int *in_fd)
 {
@@ -42,7 +43,7 @@ int handle_output_redirection(const char *filename, int *out_fd, int i)
 
 int handle_here_doc(char *here_doc_world, int *in_fd) 
 {
-    char *line;
+    char *line = NULL;
     int pipe_fd[2];
 
     if (pipe(pipe_fd) == -1)
@@ -55,28 +56,27 @@ int handle_here_doc(char *here_doc_world, int *in_fd)
     while (1)
     {
         line = readline("> ");
-        if (!line)
+        if (g_shell_signal == SIGINT)
         {
-            perror("error in readline in here_doc:\n");
-            break;
+            dup2(*in_fd, STDIN_FILENO);
+            break ;
         }
+        if (!line)
+            break;
         if (strcmp(line, here_doc_world) == 0)
         {
             free(line);
             break;
         }
-        write(pipe_fd[1], line, strlen(line));
-        write(pipe_fd[1], "\n", 1);
-        free(line);
+        if (line)
+        {
+            write(pipe_fd[1], line, strlen(line));
+            write(pipe_fd[1], "\n", 1);
+            free(line);
+        }
     }
     close(pipe_fd[1]);
     *in_fd = pipe_fd[0];
-    if (!line)
-    {
-        close(*in_fd);
-        *in_fd = STDIN_FILENO;
-        return 0;
-    }
     return 1;
 }
 

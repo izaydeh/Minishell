@@ -102,5 +102,3 @@ char	**ft_split_libft(char const *s, char c)
 	s2 = ft_split_words(s, c, s2, num_words);
 	return (s2);
 }
-
-

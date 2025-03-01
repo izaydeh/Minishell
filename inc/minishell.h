@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
+/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:48:58 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/21 19:36:25 by shoaib           ###   ########.fr       */
+/*   Updated: 2025/02/27 19:19:11 by sal-kawa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,12 +42,10 @@ typedef struct s_shell
 	int		operate_count;
 	int		dir_count;
 	int		count_pipe;
-	int		flag_echo;
 	int 	flag_here;
 }			t_shell;
 
-
-extern t_shell *g_shell;
+extern int g_shell_signal;
 
 // struct for expander
 typedef struct s_exp
@@ -56,45 +54,73 @@ typedef struct s_exp
 	char	*out;
 }	t_exp;
 
-//utils.c
-int 	count_max_operate(t_shell *test, int y);
-void 	operate(t_shell *test);//operate
-int 	count_max_dir(t_shell *test, int y);
-void 	dir(t_shell *test);//directoin
-int 	count_max_commands(t_shell *test);
-void 	command_count(t_shell *test);//commands
-void 	count_pipe(t_shell *shell);//pipe counter
+//dir.c
+void	dir(t_shell *test);
+void	process_dir_input(t_shell *test, int *j, int y);
+void	store_redirect(t_shell *test, int *j, int y, int *x);
+int		count_max_dir(t_shell *test, int y);
+
+//operator.c
+void	operate(t_shell *test);
+void	process_input(t_shell *test, int *j, int y);
+void	allocate_operate_array(t_shell *test);
+int		count_max_operate(t_shell *test, int y);
+void	count_pipe(t_shell *shell);
+
+//command.c
+int		count_max_commands(t_shell *test);
+void	command_count(t_shell *test);
+void	store_command(t_shell *test, int *j, int i);
+void	process_commands(t_shell *test);
 
 //./bulitin folder
 int		is_builtin_funcion(t_shell *test, int i);
 void 	run_builtin_function(t_shell *shell, int i, int out_fd);
-void 	ft_cd(t_shell *path, int i);
-void 	ft_echo(t_shell *string, int i);
-void 	ft_env(t_shell *test);
-void 	ft_env_init(t_shell *test);
+void 	ft_cd(t_shell *path, int i);//cd
+void	get_directory(t_shell *shell, int i, char **target);//cd
+void 	ft_echo(t_shell *string, int i);//echo
+void	handle_echo_flag(t_shell *string, int i, int *x, int *f);//echo
+void	print_echo_arguments(t_shell *string, int i, int x);//echo
+void 	ft_env(t_shell *test);//env
+void 	ft_env_init(t_shell *test);//env
+void	ft_env_copy(t_shell *test, char **environ, int i);//env
+char	*get_env_value(t_shell *shell, char *var);//env
+void 	re_shlvl(t_shell *shell);//env
+void	create_shlvl_entry(t_shell *shell, int level);//env
 void 	ft_pwd();
 void	ft_export(t_shell *test, char **args);
 void	ft_unset(t_shell *test, char **args);
 void 	get_old_pwd(t_shell *shell);
-char	*get_env_value(t_shell *shell, char *var);
 void 	update_pwd(t_shell *shell);
-void 	re_shlvl(t_shell *shell);
-int 	is_numeric(const char *str);
-int 	check_argc_in_exit(char *argv);
-int		ft_exit(t_shell *shell, int i);
+int 	is_numeric(const char *str);//exit
+int 	check_argc_in_exit(char *argv);//exit
+int		ft_exit(t_shell *shell, int i);//exit
+int		validate_exit_arguments(t_shell *shell, int i);//exit
 
 //split_command.c
-void	trim(char *str, char **start, char **end);
-int		is_redirection_operator(const char *op);
-int 	is_operator(const char *s, int *op_len);
-int		tokenize_input(const char *input, char **tokens, int max_tokens, int *cmd_flags);
-char	**ft_split(const char *input);
-size_t	 ft_count_subwords(char *s);
-char 	**ft_split_whitespace(char *s);
+int	tokenize_input(t_shell *g_shell, const char *input, char **tokens, int max_tokens, int *cmd_flags);
+
+//split_utils.c
 char	**ft_split_echo(char *s);
-char 	***split_commands(t_shell *test, char **s);
-//execve.c
+char	**parse_echo_arguments(char *s, char **tokens);
+char	**ft_split_whitespace(char *s);
+char	*extract_token_whitespace(char **s);
+size_t	ft_count_subwords(char *s);
+
+//split_input.c
+char	***split_commands(char **s);
+char	***allocate_split(char **s, size_t *count);
+void	skip_quoted_word(char **s);
+char	**ft_split(const char *input, t_shell *shell);
+
+//check_operator.c
+int	is_redirection_operator(const char *op);
+void	trim(char *str, char **start, char **end);
+int	is_operator(const char *s, int *op_len);
+
+//get_path.c
 char	*getpath(t_shell *shell, char **test);
+char	*find_executable(char *path, char *new_path, char *test);
 
 //handel_signals
 void    handle_signals(int  sig);
@@ -109,7 +135,7 @@ int 	msg_operate_error(t_shell *msg);
 //redirection.c
 int 	handle_input_redirection(char *filename, int *in_fd);
 int 	handle_output_redirection(const char *filename, int *out_fd, int append);
-int 	handle_here_doc(char *here_doc_world, int *in_fd) ;
+int		handle_here_doc(char *here_doc_world, int *in_fd);
 int 	check_operator(char *filename, char *operate, int *in_fd, int *out_fd);
 int 	get_redirections(char *filename, char *operator, int *in_fd, int *out_fd);
 
@@ -121,11 +147,16 @@ char	*handle_signal_quote(char *s, t_exp *exp);
 char	*handle_double_quote(char *s, t_shell *shell, t_exp *exp);
 char	*handle_un_quotetd(char *s, t_shell *shell, t_exp *exp);
 int		should_delete_sp(char *token);
+char	*remove_extra_spaces(char *s, char *new);
+char	*process_character(char **s, t_shell *shell, t_exp *exp);
+char	*process_token(char *s, t_shell *shell, t_exp *exp);
 
 
 //free_and_exit
-void 	free_shell(t_shell *shell, int i, int f, int child);
-void 	free_3d(char ****ar);
-void 	free_2d(char ***ar);
+void 	free_shell(t_shell *shell, int f, int child);
+void	free_child_resources(t_shell *shell);
+void	e_exit(t_shell *shell, int i);
+void 	free_3d(char ***ar);
+void 	free_2d(char **ar);
 
 #endif
