@@ -6,7 +6,7 @@
 /*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:46:28 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/03/01 06:07:38 by shoaib           ###   ########.fr       */
+/*   Updated: 2025/03/01 06:15:44 by shoaib           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,10 +121,7 @@ int	main(int argc, char **argv)
 		dir(&test);
 		i = 0;
 		int is_redirection_operatora(char op)
-		{
-		    return (op == '>' || op == '<');  // إذا كان الحرف هو '>' أو '<'، إرجاع 1 (مشغل إعادة توجيه)
-		}
-
+		    return (op == '>' || op == '<');
 		if (test.dir_count >= 1)
 		{
 			while (test.input[i])
