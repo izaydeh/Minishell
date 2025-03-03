@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_exit.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 15:47:55 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/25 19:36:15 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/03/02 07:17:38 by shoaib           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@ int	ft_exit(t_shell *shell, int i)
 	if (shell->command[i][2])
 	{
 		printf("%s: ft_exit: too many arguments\n", shell->name_program);
+		shell->exit_status = 1;
 		return (0);
 	}
 	exit_int = ft_atoi(shell->command[i][1]);

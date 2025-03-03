@@ -1,10 +1,5 @@
 #include "minishell.h"
 
-/*
- * Helper: Check if a string (up to an optional '=' sign)
- * is a valid identifier. (Identifier must start with a letter or '_' and
- * then may contain letters, digits or '_'.)
- */
 static int	is_valid_identifier(const char *str)
 {
 	int	i;
@@ -23,10 +18,7 @@ static int	is_valid_identifier(const char *str)
 	return (1);
 }
 
-/*
- * Helper: Extract the name part from a variable string.
- * For example, given "FOO=bar" it returns a newly allocated "FOO".
- */
+
 static char	*get_name(const char *str)
 {
 	int		i;
@@ -44,21 +36,7 @@ static char	*get_name(const char *str)
 	return (name);
 }
 
-/*
- * The export function.
- *
- * - If no extra arguments are given (i.e. args[1] == NULL), the function
- *   prints all environment variables in sorted order.
- *
- * - If arguments are provided:
- *     - It first checks if the argument is a valid identifier.
- *    
-	- Then it looks for an '=' character. If none is found (e.g. "export var"),
- *       the argument is ignored (nothing is added to the environment).
- *     - Otherwise (e.g. "export var=" or "export var=value"),
-	it adds or updates
- *       the variable in the environment.
- */
+
 void	ft_export(t_shell *test, char **args)
 {
 	int		i;
@@ -74,7 +52,6 @@ void	ft_export(t_shell *test, char **args)
 	int		count;
 	char **new_env;
 
-	/* No extra arguments: print environment in sorted order */
 	if (!args[1])
 	{
 		count = 0;
@@ -84,11 +61,9 @@ void	ft_export(t_shell *test, char **args)
 		env_copy = malloc((count + 1) * sizeof(char *));
 		if (!env_copy)
 			return ;
-		/* Copy pointers (we won’t modify the strings) */
 		for (j = 0; j < count; j++)
 			env_copy[j] = test->env[j];
 		env_copy[count] = NULL;
-		/* Simple bubble sort */
 		for (j = 0; j < count - 1; j++)
 		{
 			for (k = j + 1; k < count; k++)
@@ -101,7 +76,6 @@ void	ft_export(t_shell *test, char **args)
 				}
 			}
 		}
-		/* Print in the format: declare -x NAME="value" */
 		for (j = 0; j < count; j++)
 		{
 			write(1, "declare -x ", 11);
@@ -124,39 +98,70 @@ void	ft_export(t_shell *test, char **args)
 	}
 	else
 	{
-		/* Process each argument after "export" */
 		for (i = 1; args[i]; i++)
 		{
-			/* Validate identifier */
 			if (!is_valid_identifier(args[i]))
 			{
 				write(2, "export: `", 9);
 				write(2, args[i], ft_strlen(args[i]));
 				write(2, "': not a valid identifier\n", 27);
+				test->exit_status = 1;
 				continue ;
 			}
-			/* Check for '=' character */
 			equal_sign = ft_strchr(args[i], '=');
 			if (!equal_sign)
 			{
-				/* If no '=' is found (e.g. "export var"), do nothing */
-				continue ;
-			}
-			/* For arguments with '=', we use the argument as is */
-			new_var = args[i];
-			/* Get the variable name (part before '=') */
-			var_name = get_name(new_var);
-			{
+				var_name = ft_strdup(args[i]);
+				if (!var_name)
+					continue;
 				j = 0;
 				found = 0;
-				/* Search if the variable already exists in test->env */
 				while (test->env[j])
 				{
 					env_name = get_name(test->env[j]);
 					if (ft_strcmp(var_name, env_name) == 0)
 					{
 						found = 1;
-						/* Replace the old variable */
+						free(env_name);
+						break;
+					}
+					free(env_name);
+					j++;
+				}
+				if (!found)
+				{
+					count = 0;
+					while (test->env[count])
+						count++;
+					new_env = malloc((count + 2) * sizeof(char *));
+					if (!new_env)
+					{
+						free(var_name);
+						return ;
+					}
+					for (j = 0; j < count; j++)
+						new_env[j] = test->env[j];
+					new_env[count] = var_name;  // add variable without '='
+					new_env[count + 1] = NULL;
+					free(test->env);
+					test->env = new_env;
+				}
+				else
+					free(var_name);
+				continue ;
+			}
+	
+			new_var = args[i];
+			var_name = get_name(new_var);
+			{
+				j = 0;
+				found = 0;
+				while (test->env[j])
+				{
+					env_name = get_name(test->env[j]);
+					if (ft_strcmp(var_name, env_name) == 0)
+					{
+						found = 1;
 						free(test->env[j]);
 						test->env[j] = ft_strdup(new_var);
 						free(env_name);
@@ -165,7 +170,6 @@ void	ft_export(t_shell *test, char **args)
 					free(env_name);
 					j++;
 				}
-				/* If variable was not found, add it to the environment */
 				if (!found)
 				{
 					count = 0;
@@ -186,3 +190,4 @@ void	ft_export(t_shell *test, char **args)
 		}
 	}
 }
+

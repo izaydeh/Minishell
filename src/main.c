@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:46:28 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/03/01 06:27:56 by shoaib           ###   ########.fr       */
+/*   Updated: 2025/03/02 23:51:29 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 
 static void run_command(t_shell *test)
 {
+		if (!test->command || !test->command[0] || !test->command[0][0])
+			return;
 		int h = test->operate_count + test->command_count;
 		if (test->count_pipe >= 1 && ((test->count_pipe + 1) != test->command_count)
 			&& ((test->count_pipe + 1) != test->operate_count) && ((test->count_pipe + 1) != h))
@@ -32,7 +34,10 @@ static void run_command(t_shell *test)
 						- 1] == '/' && strcmp(test->command[0][0], "cd") != 0)
 		{
 			if (check_dir(test->input_splitted[0]) == 1)
+			{
 				printf("%s is a directory.\n", test->input_splitted[0]);
+				test->exit_status = 126;
+			}
 		}
 		else if (test->command && test->command[0] &&
 					strcmp(test->command[0][0], "cd") == 0
@@ -102,25 +107,68 @@ int	main(int argc, char **argv)
 		}
 		test.input_splitted = ft_split(test.input, &test);
 		test.split_the_split = split_commands(test.input_splitted);
-	i = 0;
-	while (test.split_the_split[i])
-	{
-		/* If the command is export, skip expansion to preserve spaces */
-		if (ft_strcmp(test.split_the_split[i][0], "export") == 0)
+		i = 0;
+		while (test.split_the_split[i])
 		{
+			if (ft_strcmp(test.split_the_split[i][0], "export") == 0)
+			{
+				i++;
+				continue;
+			}
+			j = 0;
+			while (test.split_the_split[i][j])
+			{
+				if (test.split_the_split[i][j][0] == '$')
+				{
+					char ***split_the_split_$ = NULL;
+					char **input_splitted_$ = NULL;
+					expanded = expander(test.split_the_split[i][j], &test);
+					if (expanded[0] == '\0')
+					{
+						free(expanded);
+						free(test.split_the_split[i][j]);
+						int k = j;
+						while (test.split_the_split[i][k + 1] != NULL)
+						{
+							test.split_the_split[i][k] = test.split_the_split[i][k + 1];
+							k++;
+						}
+						test.split_the_split[i][k] = NULL;
+						continue;
+					}					
+					free(test.split_the_split[i][j]);
+					input_splitted_$ = ft_split(expanded, &test);
+					// free(expanded);
+					split_the_split_$ = split_commands(input_splitted_$);
+					// free(input_splitted_$);
+					if (!split_the_split_$ || !split_the_split_$[0])
+					{
+						test.split_the_split[i][j] = strdup("");
+						j++;
+						test.split_the_split[i][j] = NULL;
+						continue;
+					}
+					
+					int f = 0;
+					while (split_the_split_$[0][f])
+					{
+						test.split_the_split[i][j] = split_the_split_$[0][f];
+						f++;
+						j++;
+					}
+					test.split_the_split[i][j] = NULL;
+					// free(split_the_split_$);
+				}
+				else
+				{
+					expanded = expander(test.split_the_split[i][j], &test);
+					free(test.split_the_split[i][j]);
+					test.split_the_split[i][j] = expanded;
+					j++;
+				}
+			}
 			i++;
-			continue;
 		}
-		j = 0;
-		while (test.split_the_split[i][j])
-		{
-			expanded = expander(test.split_the_split[i][j], &test);
-			free(test.split_the_split[i][j]);
-			test.split_the_split[i][j] = expanded;
-			j++;
-		}
-		i++;
-	}
 		count_pipe(&test);
 		command_count(&test);
 		operate(&test);
@@ -165,6 +213,12 @@ int	main(int argc, char **argv)
 				test.exit_status = 2;
 				continue ;
 			}
+		}
+		if (test.dir_count != test.operate_count)
+		{
+			ft_printf("%s: syntax error near unexpected token `newline'\n", test.name_program);
+			test.exit_status = 2;
+			continue ;
 		}
 		run_command(&test);
 		add_history(test.input);

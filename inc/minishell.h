@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:48:58 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/27 19:19:11 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/03/02 04:36:12 by shoaib           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,7 +150,8 @@ int		should_delete_sp(char *token);
 char	*remove_extra_spaces(char *s, char *new);
 char	*process_character(char **s, t_shell *shell, t_exp *exp);
 char	*process_token(char *s, t_shell *shell, t_exp *exp);
-
+char	*d_remove_extra_spaces(char *s, char *new);
+char	*d_delete_spaces(char *s);
 
 //free_and_exit
 void 	free_shell(t_shell *shell, int f, int child);
