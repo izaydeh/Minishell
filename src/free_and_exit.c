@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   free_and_exit.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 19:29:43 by shoaib            #+#    #+#             */
-/*   Updated: 2025/02/27 20:55:17 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/03/02 05:57:35 by shoaib           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ void	free_child_resources(t_shell *shell)
 		{
 			free_2d(shell->input_splitted);
 			// free(shell->input_splitted);
-			free_3d(shell->split_the_split);
+			free(shell->split_the_split);
 			free(shell->command);
 			// free_3d(shell->dir);
 			// free_2d(shell->dir);
@@ -102,4 +102,14 @@ void	e_exit(t_shell *shell, int i)
 {
 	shell->exit_status = i;
 	exit(i);
+}
+
+void	print_error(char *program, char *arg, char *msg)
+{
+    write(2, program, strlen(program));
+    write(2, ": ", 2);
+    write(2, arg, strlen(arg));
+    write(2, ": ", 2);
+    write(2, msg, strlen(msg));
+    write(2, "\n", 1);
 }

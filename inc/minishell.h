@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:48:58 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/27 19:19:11 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/03/02 04:36:12 by shoaib           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ typedef struct s_shell
 	char	***dir;
 	char	***operate;
 	char	**env;
+	char	**exp;
 	char	*old_pwd;
 	char	*name_program;
 	int		command_count;
@@ -81,7 +82,7 @@ void	get_directory(t_shell *shell, int i, char **target);//cd
 void 	ft_echo(t_shell *string, int i);//echo
 void	handle_echo_flag(t_shell *string, int i, int *x, int *f);//echo
 void	print_echo_arguments(t_shell *string, int i, int x);//echo
-void 	ft_env(t_shell *test);//env
+void 	ft_env(t_shell *test, int i);//env
 void 	ft_env_init(t_shell *test);//env
 void	ft_env_copy(t_shell *test, char **environ, int i);//env
 char	*get_env_value(t_shell *shell, char *var);//env
@@ -150,7 +151,8 @@ int		should_delete_sp(char *token);
 char	*remove_extra_spaces(char *s, char *new);
 char	*process_character(char **s, t_shell *shell, t_exp *exp);
 char	*process_token(char *s, t_shell *shell, t_exp *exp);
-
+char	*d_remove_extra_spaces(char *s, char *new);
+char	*d_delete_spaces(char *s);
 
 //free_and_exit
 void 	free_shell(t_shell *shell, int f, int child);
@@ -158,5 +160,6 @@ void	free_child_resources(t_shell *shell);
 void	e_exit(t_shell *shell, int i);
 void 	free_3d(char ***ar);
 void 	free_2d(char **ar);
+void	print_error(char *program, char *arg, char *msg);
 
 #endif

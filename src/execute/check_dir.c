@@ -17,11 +17,19 @@ int	check_dir(char *dir)
 	struct stat	test;
 
 	if (stat(dir, &test) != 0)
+	{
+		if (errno == EACCES)
+            return (3);
 		return (0);
+	}
 	if (S_ISDIR(test.st_mode))
 		return (1);
 	if (S_ISREG(test.st_mode))
+	{
+		if (access(dir, X_OK) != 0)
+			return (3);
 		return (2);
+	}
 	return (0);
 }
 

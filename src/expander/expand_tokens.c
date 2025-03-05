@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expand_tokens.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 02:03:58 by marvin            #+#    #+#             */
-/*   Updated: 2025/02/25 20:05:15 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/03/02 03:20:35 by shoaib           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,8 @@ char	*process_character(char **s, t_shell *shell, t_exp *exp)
 {
 	if (**s == '\\')
 	{
-		(*s)++;
+		(*s)++;  // Skip the backslash
+		// If the next char is one of the special ones, output it normally.
 		if (**s == '\"' || **s == '\\' || **s == '$' || **s == '`')
 		{
 			*(exp->out) = **s;
@@ -25,8 +26,13 @@ char	*process_character(char **s, t_shell *shell, t_exp *exp)
 		}
 		else
 		{
-			*(exp->out) = '\\';
-			exp->out++;
+			// NEW: For any other character, skip the backslash and output the character alone.
+			if (**s)
+			{
+				*(exp->out) = **s;
+				exp->out++;
+				(*s)++;
+			}
 		}
 	}
 	else if (**s == '$')
@@ -81,7 +87,13 @@ char	*expander(char *token, t_shell *shell)
 	s = token;
 	s = process_token(s, shell, &exp);
 	*exp.out = '\0';
-	if (should_delete_sp(original))
+	if (original[0] == '$')
+	{
+		final = d_delete_spaces(exp.res);
+		free(exp.res);
+		return (final);
+	}
+	else if (should_delete_sp(original))
 	{
 		final = delete_spaces(exp.res);
 		free(exp.res);

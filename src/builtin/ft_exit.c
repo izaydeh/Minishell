@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   ft_exit.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shoaib <shoaib@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 15:47:55 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/25 19:36:15 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/03/02 07:17:38 by shoaib           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+#include <limits.h> 
 
 int	is_numeric(const char *str)
 {
@@ -46,6 +47,8 @@ int	check_argc_in_exit(char *argv)
 
 int	validate_exit_arguments(t_shell *shell, int i)
 {
+	long long	val;
+
 	if (!shell->command[i])
 	{
 		shell->exit_status = 0;
@@ -53,8 +56,16 @@ int	validate_exit_arguments(t_shell *shell, int i)
 	}
 	if (!is_numeric(shell->command[i][1]))
 	{
-		printf("%s: ft_exit: %s: numeric argument required\n",
-			shell->name_program, shell->command[i][1]);
+		print_error(shell->name_program, shell->command[i][1],
+				"numeric argument required");
+		shell->exit_status = 2;
+		return (1);
+	}
+	val = ft_atoi(shell->command[i][1]);
+	if (val == LLONG_MAX || val == LLONG_MIN)
+	{
+		print_error(shell->name_program, shell->command[i][1], 
+			"numeric argument required");
 		shell->exit_status = 2;
 		return (1);
 	}
@@ -70,7 +81,8 @@ int	ft_exit(t_shell *shell, int i)
 		return (1);
 	if (shell->command[i][2])
 	{
-		printf("%s: ft_exit: too many arguments\n", shell->name_program);
+		print_error(shell->name_program, "", "too many arguments");
+		shell->exit_status = 1;
 		return (0);
 	}
 	exit_int = ft_atoi(shell->command[i][1]);

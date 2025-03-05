@@ -22,7 +22,7 @@ void	get_directory(t_shell *shell, int i, char **target)
 	{
 		if (!home)
 		{
-			perror("cd: HOME not set\n");
+			printf("%s: cd: HOME not set\n", shell->name_program);
 			shell->exit_status = 1;
 			*target = NULL;
 			return ;
@@ -34,7 +34,9 @@ void	get_directory(t_shell *shell, int i, char **target)
 		*target = shell->command[i][1];
 		if (check_dir(*target) != 1)
 		{
-			write(2, "the argument not a directory \n", 31);
+			if (check_dir(*target) == 3)
+				printf("%s: cd: Permission Denied\n", shell->name_program);
+			shell->exit_status = 1;
 			*target = NULL;
 		}
 	}
@@ -43,20 +45,43 @@ void	get_directory(t_shell *shell, int i, char **target)
 void	ft_cd(t_shell *shell, int i)
 {
 	char	*target;
-
+	char	*cwd_after;
+	
 	target = NULL;
-	get_directory(shell, i, &target);
-	if (!target)
+	if (shell->command[i][2] != NULL && shell->command[i][1] != NULL)
+	{
+		printf("%s: cd: too many arguments\n", shell->name_program);
+		shell->exit_status = 1;
 		return ;
+	}
+	get_directory(shell, i, &target);
+	if (!target && strcmp(shell->command[i][1], "..") != 0)
+	{
+		printf("%s: cd: no such file or directory\n", shell->name_program);
+		shell->exit_status = 1;
+		return ;
+	}
+	cwd_after = getcwd(NULL, 0);
 	get_old_pwd(shell);
 	if (chdir(target) != 0)
 	{
-		perror("cd");
-		shell->exit_status = 1;
+		if (!cwd_after)
+		{
+			printf("%s: error retrieving current directory:", shell->name_program);
+			printf(" getcwd: cannot access parent directories: No such file or directory\n");
+			shell->exit_status = 0;
+		}
+		else
+		{
+			perror("cd");
+			shell->exit_status = 1;
+		}
+		return ;
 	}
 	else
 	{
 		update_pwd(shell);
 		shell->exit_status = 0;
+		free(cwd_after);
 	}
 }

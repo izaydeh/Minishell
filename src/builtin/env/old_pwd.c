@@ -18,11 +18,18 @@ void	get_old_pwd(t_shell *test)
 	char	*export[3];
 	char	*oldpwd;
 	int		oldpwd_len;
+	char	*pwd_back;
 
 	if (getcwd(path, sizeof(path)) == NULL)
 	{
-		perror("getcwd error");
-		return ;
+		pwd_back = get_env_value(test, "PWD");
+		if (pwd_back == NULL)
+		{
+			perror("getcwd error");
+			return;
+		}
+		strncpy(path, pwd_back, sizeof(path) - 1);
+		path[sizeof(path) - 1] = '\0';
 	}
 	oldpwd_len = strlen("OLDPWD=") + strlen(path) + 1;
 	oldpwd = (char *)malloc(oldpwd_len);

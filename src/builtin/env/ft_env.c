@@ -12,17 +12,49 @@
 
 #include "minishell.h"
 
-void	ft_env(t_shell *test)
+void	ft_env(t_shell *test, int i)
 {
-	int	i;
+	int	x;
+	char **argv;
 
-	i = 0;
-	while (test->env[i])
+	argv = test->command[i];
+	if (argv[1] != NULL)
 	{
-		write(1, test->env[i], ft_strlen(test->env[i]));
-		write(1, "\n", 1);
-		i++;
+		if (argv[1][strlen(argv[1]) - 1] == '/')
+		{
+			argv[1][strlen(argv[1]) - 1] = '\0';
+			int dir_check = check_dir(argv[1]);
+			if (dir_check == 1 || dir_check == 3)
+			{
+				print_error(test->name_program, argv[1], "Permission denied");
+				test->exit_status = 126;
+			}
+			else if (dir_check == 2)
+			{
+				print_error(test->name_program, argv[1], "Not a directory");
+				test->exit_status = 126;
+			}
+			else
+			{
+				print_error(test->name_program, argv[1], "No such file or directory");
+				test->exit_status = 127;
+			}
+		}
+		else
+		{
+			printf("env: ‘%s’: No such file or directory\n", test->command[i][1]);
+			test->exit_status = 127;
+		}
+		return ;
 	}
+	x = 0;
+	while (test->env[x])
+	{
+		write(1, test->env[x], ft_strlen(test->env[x]));
+		write(1, "\n", 1);
+		x++;
+	}
+	test->exit_status = 0;
 }
 
 char	*get_env_value(t_shell *shell, char *key)
@@ -74,4 +106,6 @@ void	ft_env_init(t_shell *test)
 	if (!test->env)
 		return ;
 	ft_env_copy(test, environ, 0);
+	test->env[i] = NULL;
+	test->exp = NULL;
 }

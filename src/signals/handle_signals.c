@@ -26,5 +26,9 @@ void	handle_signals(int sig)
 	}
 	else if (sig == SIGQUIT)
 	{
+		g_shell_signal = 0;
+		// rl_on_new_line();
+		// rl_replace_line("", 0);
+        // rl_redisplay();
 	}
 }

@@ -3,14 +3,56 @@
 /*                                                        :::      ::::::::   */
 /*   expand_tokens_two.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sal-kawa <sal-kawa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 20:04:34 by sal-kawa          #+#    #+#             */
-/*   Updated: 2025/02/25 20:05:12 by sal-kawa         ###   ########.fr       */
+/*   Updated: 2025/03/02 23:58:42 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+char	*d_remove_extra_spaces(char *s, char *new)
+{
+	int i = 0;
+	int j = 0;
+	int in_quote = 0;
+	int last_was_space = 1;
+
+	while (s[i])
+	{
+		if (s[i] == '"')
+			in_quote = !in_quote;
+		if (s[i] == ' ' && !in_quote)
+		{
+			if (!last_was_space)
+				new[j++] = ' ';
+			last_was_space = 1;
+		}
+		else
+		{
+			new[j++] = s[i];
+			last_was_space = 0;
+		}
+		i++;
+	}
+	new[j] = '\0';
+	return (new);
+}
+
+char	*d_delete_spaces(char *s)
+{
+	int		len;
+	char	*new;
+
+	len = 0;
+	while (s[len])
+		len++;
+	new = malloc(len + 1);
+	if (new == NULL)
+		return (NULL);
+	return (d_remove_extra_spaces(s, new));
+}
 
 static void	remove_extra_spaces_helper(char *s, char *new, int *i, int *j)
 {
@@ -105,7 +147,17 @@ char	*handle_un_quotetd(char *s, t_shell *shell, t_exp *exp)
 {
 	while (*s && *s != '\"' && *s != '\'')
 	{
-		if (*s == '$')
+		if (*s == '\\')
+		{
+			s++;
+			if (*s)
+			{
+				*(exp->out) = *s;
+				exp->out++;
+				s++;
+			}
+		}
+		else if (*s == '$')
 			s = process_dollar(s, shell, exp);
 		else
 		{

@@ -43,9 +43,9 @@ void	run_builtin_function(t_shell *shell, int i, int out_fd)
 	else if (ft_strcmp(shell->command[i][0], "cd") == 0)
 		ft_cd(shell, i);
 	else if (ft_strcmp(shell->command[i][0], "env") == 0)
-		ft_env(shell);
+		ft_env(shell, i);
 	else if (ft_strcmp(shell->command[i][0], "pwd") == 0)
-		ft_pwd();
+		ft_pwd(shell);
 	dup2(stdout, STDOUT_FILENO);
 	close(stdout);
 }

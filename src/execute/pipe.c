@@ -51,8 +51,9 @@ void execute_pipeline(t_shell *shell)
 					int b = 0;
         			while (shell->dir[a][b])
         			{
-        				get_redirections(shell->dir[a][b], shell->operate[a][b], &in_fd, &out_fd);
-        			    if (in_fd != STDIN_FILENO)
+        				if(!get_redirections(shell->dir[a][b], shell->operate[a][b], &in_fd, &out_fd))
+							shell->exit_status = 1;
+						if (in_fd != STDIN_FILENO)
                             close(in_fd);
                         if (out_fd != STDOUT_FILENO)
                             close(out_fd);
@@ -77,8 +78,9 @@ void execute_pipeline(t_shell *shell)
 			int b = 0;
         	while (shell->dir[a][b])
         	{
-        		get_redirections(shell->dir[a][b], shell->operate[a][b], &in_fd, &out_fd);
-        	    if (in_fd != STDIN_FILENO)
+        		if (!get_redirections(shell->dir[a][b], shell->operate[a][b], &in_fd, &out_fd))
+					shell->exit_status = 1;
+				if (in_fd != STDIN_FILENO)
                     close(in_fd);
                 if (out_fd != STDOUT_FILENO)
                     close(out_fd);
@@ -107,7 +109,9 @@ void execute_pipeline(t_shell *shell)
 	            while (shell->dir[a][b])
 	            {
 	                if (!(get_redirections(shell->dir[a][b], shell->operate[a][b], &in_fd, &out_fd)))
-	                    redir_success = 0;
+						redir_success = 0;
+					else
+						shell->exit_status = 1;
 	                b++;
 	            }
 	        }
@@ -176,24 +180,86 @@ void execute_pipeline(t_shell *shell)
 						free_shell(shell, 1, 0);
 						e_exit(shell, shell->exit_status);
 					}
-					shell->exit_status = 0;
 					free_shell(shell, 1, 0);
-					e_exit(shell, 0);
+					e_exit(shell, shell->exit_status);
+				}
+				if (strcmp(shell->command[i][0], "/") == 0 && shell->command[i][1] == NULL)
+				{
+					print_error(shell->name_program, argv[0], "Is a directory");
+					free_shell(shell, 1, 0);
+					e_exit(shell, 126);
+				}
+				if (argv[0][strlen(argv[0]) - 1] == '/')
+				{
+					argv[0][strlen(argv[0]) - 1] = '\0';
+					int dir_check = check_dir(argv[0]);
+					if (dir_check == 1)
+					{
+						print_error(shell->name_program, argv[0], "is a directory");
+						free_shell(shell, 1, 0);
+						e_exit(shell, 126);
+					}
+					else if (dir_check == 3)
+					{
+						print_error(shell->name_program, argv[0], "Permission denied");
+						free_shell(shell, 1, 0);
+						e_exit(shell, 126);
+					}
+					else if (dir_check == 2)
+					{
+						print_error(shell->name_program, argv[0], "Not a directory");
+						free_shell(shell, 1, 0);
+						e_exit(shell, 126);
+					}
+					else
+					{
+						print_error(shell->name_program, argv[0], "No such file or directory");
+						free_shell(shell, 1, 0);
+						e_exit(shell, 127);
+					}
 				}
 				cmd_path = getpath(shell, argv);
-				if (!cmd_path)
+				if (!cmd_path || strcmp(argv[0], "..") == 0 || strcmp(argv[0], ".") == 0)
 				{
-					perror(argv[0]);
-					free_shell(shell, 1, 0);
-					e_exit(shell, 127);
+					if (strcmp(argv[0], ".") == 0)
+					{
+						print_error(shell->name_program, argv[0], "filename argument required");
+						free(cmd_path);
+						free_shell(shell, 1, 0);
+						e_exit(shell, 2);
+					}
+					else
+					{
+						print_error(shell->name_program, argv[0], "Command not found");
+						free(cmd_path);
+						free_shell(shell, 1, 0);
+						e_exit(shell, 127);
+					}
 				}
 				argv[0] = cmd_path;
 				if (execve(cmd_path, argv, shell->env) == -1)
-	            {
-					perror("execve");
-		            free(cmd_path);
-					free_shell(shell, 1, 0);
-					e_exit(shell, 126);
+				{
+					if (errno == EACCES)
+					{
+						print_error(shell->name_program, argv[0], "Permission denied");
+						free(cmd_path);
+						free_shell(shell, 1, 0);
+						e_exit(shell, 126);
+					}
+					else if (errno == ENOEXEC)
+					{
+						print_error(shell->name_program, argv[0], "Exec format error");
+						free(cmd_path);
+						free_shell(shell, 1, 0);
+						e_exit(shell, 126);
+					}
+					else
+					{
+						print_error(shell->name_program, argv[0], strerror(errno));
+						free(cmd_path);
+						free_shell(shell, 1, 0);
+						e_exit(shell, 127);
+					}
 				}
 			}
 	        if (in_fd != STDIN_FILENO)

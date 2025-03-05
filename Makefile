@@ -1,4 +1,4 @@
-NAME =minishell
+NAME = minishell
 
 SRCS = src/main.c \
        src/allocate/dir.c \
@@ -29,33 +29,36 @@ SRCS = src/main.c \
        src/expander/expand_tokens_two.c \
        src/expander/process_dollar_sign.c
 
-OBJ =$(SRCS:.c=.o)
-LIBFT_PATH=libft
-CC =cc 
-CFLAGS =-Wall -Wextra -Werror -g
-LINKER =-L./libft -lft -lreadline
-INC =-I./inc -I./libft/inc
+OBJ_DIR = obj
+OBJ = $(SRCS:src/%.c=$(OBJ_DIR)/%.o)
+LIBFT_PATH = libft
+CC = cc 
+CFLAGS = -Wall -Wextra -Werror -g
+LINKER = -L./libft -lft -lreadline
+INC = -I./inc -I./libft/inc
 
 all: LIB $(NAME)
 
 LIB:
 	make -C $(LIBFT_PATH)
 
-$(NAME) : $(OBJ)
-	$(CC) $^ $(LINKER) -o $@ 
+$(NAME): $(OBJ)
+	$(CC) $^ $(LINKER) -o $@
 
-%.o:%.c
-	$(CC) $(CFLAGS) $(INC) $< -c -o $@
+$(OBJ_DIR)/%.o: src/%.c | $(OBJ_DIR)
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
+
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
 
 clean:
-		rm -rf $(OBJ)
-		make -C $(LIBFT_PATH) clean 
-		
+	rm -rf $(OBJ_DIR)
+	make -C $(LIBFT_PATH) clean 
 
 fclean: clean
-		rm -rf $(NAME)
-		make -C $(LIBFT_PATH) fclean
-		
+	rm -rf $(NAME)
+	make -C $(LIBFT_PATH) fclean
 
 re: fclean all
 

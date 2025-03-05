@@ -43,8 +43,18 @@ void	re_shlvl(t_shell *shell)
 	char	*shlvl;
 
 	shlvl = get_env_value(shell, "SHLVL");
-	level = 1;
-	if (shlvl)
+	if (!shlvl || !is_numeric(shlvl))
+		level = 1;
+	else
+	{
 		level = ft_atoi(shlvl) + 1;
+		if (level < 0)
+			level = 0;
+		else if (level >= 1000)
+		{
+			printf("./minishell: warning: shell level (1000) too high, resetting to 1\n");
+			level = 1;
+		}
+	}
 	create_shlvl_entry(shell, level);
 }
